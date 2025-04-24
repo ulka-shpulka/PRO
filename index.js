@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // Указываем �
 
 // 🟣 Отдаём index.html при заходе на /
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'html.html')); // Путь к твоему html файлу
+  res.sendFile(__dirname + '/public/html.html');
 });
 
 // Маршрут для оформления записи
