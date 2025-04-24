@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: beauty-salon
+    env: node
+    plan: free
+    buildCommand: 'npm install && npm run build'
+    startCommand: 'npm start'
+    git:
+      branch: master
+      remote: https://github.com/ulka-shpulka/Lumi-re.git
