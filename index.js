@@ -11,31 +11,38 @@ const PORT = process.env.PORT || 3000;
 
 // Токен вашего Telegram-бота (замените на ваш реальный токен)
 const token = '7649901748:AAE-yAcdXAQKmIoO45ErEdVfdicBGD6dwKs';
+const domain = 'https://lumire.onrender.com'; // 🔁 ЗАМЕНИ на актуальный HTTPS-домен (например, Render)
 
-// Инициализация бота в режиме polling (для разработки)
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { webHook: true });
+
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 
 // Указываем Express обслуживать статические файлы из папки public
-app.use(express.static(path.join(__dirname, 'public'))); // Указываем правильный путь
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 🟣 Отдаём index.html при заходе на /
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/html.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Маршрут для оформления записи
+// 📌 Устанавливаем Webhook для Telegram
+bot.setWebHook(`${domain}/${token}`);
+
+// ✅ Webhook endpoint от Telegram
+app.post(`/${token}`, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
+// 📅 Обработка записи с сайта
 app.post('/book', (req, res) => {
   const { service, staff, date, time } = req.body;
 
   if (!service || !staff || !date || !time) {
-    return res.status(400).json({
-      success: false,
-      error: 'Отсутствуют обязательные поля'
-    });
+    return res.status(400).json({ success: false, error: 'Отсутствуют обязательные поля' });
   }
 
   const message = `
@@ -50,23 +57,15 @@ app.post('/book', (req, res) => {
   const chatId = '1005939833';
 
   bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
-    .then(() => {
-      console.log('Сообщение успешно отправлено администратору');
-      res.status(200).json({
-        success: true,
-        message: 'Запись успешно оформлена!'
-      });
-    })
-    .catch((error) => {
+    .then(() => res.status(200).json({ success: true, message: 'Запись успешно оформлена!' }))
+    .catch(error => {
       console.error('Ошибка при отправке сообщения:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Ошибка при отправке уведомления'
-      });
+      res.status(500).json({ success: false, error: 'Ошибка при отправке уведомления' });
     });
 });
 
-// Обработчики Telegram-бота
+// === Обработчики Telegram ===
+
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || '';
@@ -96,13 +95,11 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.onText(/💇‍♀️ Мои записи/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'В настоящее время у вас нет активных записей. Чтобы записаться, посетите наш сайт.');
+  bot.sendMessage(msg.chat.id, 'В настоящее время у вас нет активных записей. Чтобы записаться, посетите наш сайт.');
 });
 
 bot.onText(/ℹ️ Информация о салоне/, (msg) => {
-  const chatId = msg.chat.id;
-  const infoMessage = `
+  const info = `
 *О нашем салоне*
 
 🏠 Адрес: [Ваш адрес]
@@ -110,15 +107,13 @@ bot.onText(/ℹ️ Информация о салоне/, (msg) => {
 📞 Телефон: [Ваш телефон]
 🌐 Сайт: [Ваш сайт]
   `;
-  bot.sendMessage(chatId, infoMessage, { parse_mode: 'Markdown' });
+  bot.sendMessage(msg.chat.id, info, { parse_mode: 'Markdown' });
 });
 
 bot.onText(/📞 Связаться с нами/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.');
+  bot.sendMessage(msg.chat.id, 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.');
 });
 
-// Общий обработчик текстовых сообщений
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
 
@@ -134,17 +129,13 @@ bot.on('message', (msg) => {
     const userInfo = `Сообщение от ${userName} (${msg.from.first_name} ${msg.from.last_name || ''}):\n\n${msg.text}`;
 
     bot.sendMessage(adminChatId, userInfo)
-      .then(() => {
-        bot.sendMessage(chatId, 'Спасибо за сообщение! Мы ответим вам в ближайшее время.');
-      })
-      .catch(error => {
-        console.error('Ошибка при пересылке сообщения:', error);
-      });
+      .then(() => bot.sendMessage(chatId, 'Спасибо за сообщение! Мы ответим вам в ближайшее время.'))
+      .catch(error => console.error('Ошибка при пересылке сообщения:', error));
   }
 });
 
 // Запускаем сервер
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
-  console.log(`🤖 Бот запущен в режиме polling`);
+  console.log(`🌐 Webhook установлен по адресу: ${domain}/${token}`);
 });
