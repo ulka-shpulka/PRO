@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Выбор даты и времени</title>
+  <link rel="stylesheet" href="major-datetime.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Выберите дату</h1>
+    <input type="date" id="datePicker" />
+
+    <div class="legend">
+      <span class="booked-box"></span> Занято
+    </div>
+
+    <div class="time-container" id="timeContainer">
+      <!-- Время появится после выбора даты -->
+    </div>
+
+    <button id="continueBtn" style="display: none;" onclick="window.location.href='major-online.html';">
+        Продолжить запись
+      </button>
+  </div>
+
+  <script src="major-datetime.js"></script>
+</body>
+</html>

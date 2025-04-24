@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор услуги</title>
+  <link rel="stylesheet" href="services.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Выберите услугу</h1>
+
+    <div class="category" onclick="toggleCategory('nails')">
+      Маникюр и педикюр
+    </div>
+    <div class="services-list" id="nails">
+      <div class="service" onclick="selectService('Маникюр (2500₸ / 40 мин)')">Маникюр — 2500₸ / 40 мин</div>
+      <div class="service" onclick="selectService('Педикюр (3000₸ / 50 мин)')">Педикюр — 3000₸ / 50 мин</div>
+      <div class="service" onclick="selectService('Френч (3500₸ / 60 мин)')">Френч — 3500₸ / 60 мин</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('hair')">
+      Парикмахерские услуги
+    </div>
+    <div class="services-list" id="hair">
+      <div class="service" onclick="selectService('Окрашивание (8000₸ / 2 ч)')">Окрашивание — 8000₸ / 2 ч</div>
+      <div class="service" onclick="selectService('Стрижка (4000₸ / 1 ч)')">Стрижка — 4000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Укладка (3500₸ / 40 мин)')">Укладка — 3500₸ / 40 мин</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('massage')">
+      Массаж
+    </div>
+    <div class="services-list" id="massage">
+      <div class="service" onclick="selectService('Общий массаж (7000₸ / 1 ч)')">Общий массаж — 7000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Массаж лица (4500₸ / 30 мин)')">Массаж лица — 4500₸ / 30 мин</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('makeup')">
+      Визаж
+    </div>
+    <div class="services-list" id="makeup">
+      <div class="service" onclick="selectService('Дневной макияж (6000₸ / 1 ч)')">Дневной макияж — 6000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Вечерний макияж (8000₸ / 1.5 ч)')">Вечерний макияж — 8000₸ / 1.5 ч</div>
+    </div>
+
+    <button id="continueBtn" class="continue" onclick="window.location.href='leo-online.html'" style="display: none;">
+      Продолжить запись
+    </button>
+    
+    
+  </div>
+
+  <script src="services.js"></script>
+</body>
+</html>

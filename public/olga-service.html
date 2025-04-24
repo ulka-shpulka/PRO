@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор услуги</title>
+  <link rel="stylesheet" href="olga-service.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Выберите услугу</h1>
+
+    <div class="category" onclick="toggleCategory('hair')">Парикмахерские услуги</div>
+    <div class="services-list" id="hair">
+      <div class="service" onclick="selectService('Стрижка мужская (5000₸ / 1 ч)')">Стрижка мужская — 5000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Стрижка женская (5000₸ / 1 ч)')">Стрижка женская — 5000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Окрашивание волос (однотонное) (12500₸ / 3 ч)')">Окрашивание волос (однотонное) — 12500₸ / 3 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('face')">Чистка лица:</div>
+    <div class="services-list" id="face">
+      <div class="service" onclick="selectService('Глубокая чистка лица (ручная) (10000₸ / 1.5 ч)')">Глубокая чистка лица (ручная) — 10000₸/ 1.5 ч</div>
+      <div class="service" onclick="selectService('Чистка лица с пилингом  (8000₸+с/м / 1.5 ч)')">Чистка лица с использованием аппарата — 8000₸/ 1.5 ч</div>
+      <div class="service" onclick="selectService('Ультразвуковая чистка лица (7500₸/ 1 ч)')">Чистка лица с пилингом — 7500₸ / 1 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('massage')">Массаж:</div>
+    <div class="services-list" id="massage">
+      <div class="service" onclick="selectService('Классический массаж (спины) (6000₸ / 1 ч)')"> Классический массаж (спины) — 6000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Антицеллюлитный массаж (12000₸ / 1.5 ч)')">Антицеллюлитный массаж — 12000₸ / 1.5 ч</div>
+      <div class="service" onclick="selectService('Релакс-массаж (8000₸ / 2 ч)')">Релакс-массаж — 8000₸ / 2 ч</div>
+    </div>
+
+
+    <button id="continueBtn" class="continue" onclick="window.location.href='olga-online.html'" style="display: none;">
+      Продолжить запись
+    </button>
+  </div>
+
+  <script src="olga-service.js"></script>
+</body>
+</html>

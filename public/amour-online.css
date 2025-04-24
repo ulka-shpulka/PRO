@@ -1,0 +1,150 @@
+b* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #121212;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* 🌫 НЕЖНЫЕ, ПЛАВНО АНИМИРУЕМЫЕ КАПЛИ */
+body::before, body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.25;
+    z-index: 0;
+    animation: float 10s ease-in-out infinite alternate;
+}
+
+body::before {
+    width: 400px;
+    height: 400px;
+    background: #7b2cbf;
+    top: 15%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+body::after {
+    width: 450px;
+    height: 450px;
+    background: #c084fc;
+    bottom: 10%;
+    right: 10%;
+    animation-delay: 4s;
+}
+
+/* ✨ АНИМАЦИЯ ДЫХАНИЯ */
+@keyframes float {
+    0% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.2;
+    }
+    100% {
+        transform: scale(1.2) translate(20px, -20px);
+        opacity: 0.35;
+    }
+}
+
+.container {
+  width: 90%;
+  max-width: 420px;
+  z-index: 1;
+  animation: fadeInUp 1s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selection {
+    background: linear-gradient(90deg, #ffffff, #a855f7);
+  margin: 15px 0;
+  padding: 20px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s, background 0.3s;
+}
+
+.selection:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+  transform: scale(1.02);
+}
+
+.label {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #000000;
+}
+
+.chosen {
+  margin-top: 6px;
+  font-size: 0.95em;
+  color: #000000b3;
+}
+
+.arrow {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2em;
+  color: #000000;
+}
+
+#submitBtn {
+  margin-top: 30px;
+  width: 100%;
+  padding: 15px;
+  background-color: #a855f7;
+  border: none;
+  border-radius: 12px;
+  color: #121212;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+  box-shadow: 0 4px 20px rgba(237, 168, 84, 0.25);
+}
+
+#submitBtn:hover {
+  background-color: #be41ca;
+  transform: scale(1.01);
+}
+
+.back-link {
+  display: inline-block;
+  margin: 40px auto 20px;
+  padding: 10px 20px;
+  background-color: #772c8ba1;
+  color: #121212;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 30px;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background-color: #c65ffaa1;
+  transform: scale(1.05);
+}

@@ -1,0 +1,141 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #5a3e36;
+    font-family: 'Segoe UI', sans-serif;
+    color: #121212;
+    height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* Фоновая анимация */
+  body::before, body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.3;
+    z-index: 0;
+    animation: float 10s ease-in-out infinite alternate;
+  }
+  
+  body::before {
+    width: 400px;
+    height: 400px;
+    background: #f9d5c2; /* светло-персиковый акцент */
+    top: 15%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+  
+  body::after {
+    width: 450px;
+    height: 450px;
+    background: #b98053; /* тёплый медный */
+    bottom: 10%;
+    right: 10%;
+    animation-delay: 4s;
+  }
+  
+  @keyframes float {
+    0% {
+      transform: scale(1) translate(0, 0);
+      opacity: 0.2;
+    }
+    100% {
+      transform: scale(1.2) translate(20px, -20px);
+      opacity: 0.4;
+    }
+  }
+  
+  .container {
+    width: 90%;
+    max-width: 420px;
+    z-index: 1;
+    text-align: center;
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .title {
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    color: #b98053; /* тёплый акцент в заголовке */
+  }
+  
+  #staffList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .staff {
+    background: linear-gradient(135deg, #fff1ec, #f6cdb4); /* мягкий розово-персиковый градиент */
+    padding: 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(185, 128, 83, 0.2); /* мягкая тень медного цвета */
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  .staff:hover {
+    background: #f6cdb4; /* подсветка при наведении */
+    transform: scale(1.02);
+  }
+  
+  .staff-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: #b98053;
+  }
+  
+  .staff-experience {
+    font-size: 0.95em;
+    color: #5a4032;
+  }
+  
+  /* 🔥 Выбранный сотрудник */
+  .staff.selected {
+    background-color: #b98053;
+    color: #fff1ec;
+    box-shadow: 0 0 15px rgba(185, 128, 83, 0.4);
+    transform: scale(1.02);
+  }
+  
+  .continue {
+    margin-top: 30px;
+    width: 100%;
+    padding: 15px;
+    background-color: #b98053;
+    border: none;
+    border-radius: 12px;
+    color: #fff1ec;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s;
+    box-shadow: 0 4px 20px rgba(185, 128, 83, 0.3);
+  }
+  
+  .continue:hover {
+    background-color: #a06844; /* немного темнее при наведении */
+    transform: scale(1.01);
+  }
+  

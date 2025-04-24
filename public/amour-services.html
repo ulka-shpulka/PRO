@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор услуги</title>
+  <link rel="stylesheet" href="amour-services.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Выберите услугу</h1>
+
+    <div class="category" onclick="toggleCategory('nails')">Маникюр</div>
+    <div class="services-list" id="nails">
+      <div class="service" onclick="selectService('Маникюр однотонное покрытие (6000₸ / 2-3 ч)')">Маникюр однотонное покрытие — 6000₸ / 2-3 ч</div>
+      <div class="service" onclick="selectService('Маникюр без покрытия (4000₸ / 2 ч)')">Маникюр без покрытия — 4000₸ / 2 ч</div>
+      <div class="service" onclick="selectService('Френч (+1000 / 2 ч)')">Френч — +1000₸ / 2 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('eyebrows')">Брови</div>
+    <div class="services-list" id="eyebrows">
+      <div class="service" onclick="selectService('Коррекция бровей (2000-2500₸ / 2 ч)')">Коррекция бровей — 2000-2500₸ / 2 ч</div>
+      <div class="service" onclick="selectService('Окрашивание бровей (4000₸ / 2 ч)')">Окрашивание бровей — 4000₸ / 2 ч</div>
+      <div class="service" onclick="selectService('Ламинирование бровей (5000₸ / 60 мин)')">Ламинирование бровей — 5000₸ / 60 мин</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('eyelashes')">Ресницы</div>
+    <div class="services-list" id="eyelashes">
+      <div class="service" onclick="selectService('Ресницы без окрашивания (5500₸ / 1 ч)')"> Ресницы без окрашивания — 5500₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Ресницы с окрашиванием (6000₸ / 1,5 ч)')">Ресницы с окрашиванием — 6000₸ / 1,5 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('makeup')">Визаж</div>
+    <div class="services-list" id="makeup">
+      <div class="service" onclick="selectService('Дневной макияж (7000₸ / 1 ч)')">Дневной макияж — 7000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Вечерний макияж (7000₸ / 1 ч)')">Вечерний макияж — 7000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Свадебный макияж (9000₸ / 1.5 ч)')">Свадебный макияж — 9000₸ / 1.5 ч</div>
+    </div>
+
+    <button id="continueBtn" class="continue" onclick="window.location.href='amour-online.html'" style="display: none;">
+      Продолжить запись
+    </button>
+  </div>
+
+  <script src="amour-services.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,366 @@
+body {
+  margin: 0;
+  font-family: 'Scada', sans-serif;
+  background: #d1d0d0;
+  color: #121212;
+  overflow-x: hidden;
+  
+}
+
+.green {
+  color: #3c7d3f;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 60px 10%;
+    background: linear-gradient(135deg, #ffffff 0%, #dcdcdc 50%, #3c7d3f 100%);
+  }
+  
+  
+  .slogan {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 2.5rem;
+    max-width: 600px;
+    
+  }
+  
+  .slogan span {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInWord 0.5s ease forwards;
+  }
+  
+  .slogan span:nth-child(1) { animation-delay: 0s; }
+  .slogan span:nth-child(2) { animation-delay: 0.1s; }
+  .slogan span:nth-child(3) { animation-delay: 0.2s; }
+  .slogan span:nth-child(4) { animation-delay: 0.3s; }
+  .slogan span:nth-child(5) { animation-delay: 0.4s; }
+  .slogan span:nth-child(6) { animation-delay: 0.5s; }
+  .slogan span:nth-child(7) { animation-delay: 0.6s; }
+  .slogan span:nth-child(8) { animation-delay: 0.7s; }
+  .slogan span:nth-child(9) { animation-delay: 0.8s; }
+  
+  @keyframes slideInWord {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+
+.left h1 {
+  font-size: 2.5rem;
+  max-width: 500px;
+  animation: fadeInLeft 1s ease-in-out;
+}
+
+.action-btn {
+    margin-top: 20px;
+    padding: 12px 30px;
+    border: none;
+    background: #2a5b2d;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: 0.5s;
+    position: relative;
+    text-decoration: none;
+    z-index: 1;
+    -webkit-mask: 
+      linear-gradient(135deg, #000c 40%, #000, #000c 60%)
+      100% 100% / 250% 250%;
+    mask: 
+      linear-gradient(135deg, #000c 40%, #000, #000c 60%)
+      100% 100% / 250% 250%;
+  }
+  
+  .action-btn:hover {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+    background: #4fa250;
+    transform: scale(1.05);
+    
+  }
+  
+    .right .logo-oval {
+    width: 350px;
+    height: 330px;
+    background: #eee;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInRight 1s ease-in-out;
+    transition: all 0.5s ease;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Увеличенная и чёткая тень */
+  }
+  
+  /* Эффект при наведении на логотип */
+  .right .logo-oval:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 
+      0 15px 40px rgba(0, 0, 0, 0.6), /* Глубокая и чёткая тень при наведении */
+      0 20px 25px rgba(60, 125, 63, 0.4),
+      0 30px 10px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.3)) brightness(1.1);
+  }
+  
+  /* Эффект тени на логотипе */
+  .logo-oval img {
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5)); /* Чёткая и глубокая тень на изображение */
+    transition: filter 0.3s ease;
+  }
+  
+  /* Эффект для изображения внутри логотипа при наведении */
+  .right .logo-oval:hover img {
+    filter: drop-shadow(0 0 40px rgba(0, 255, 0, 0.6)) brightness(1.3);
+  }
+  
+  
+
+  
+.divider {
+    height: 30px; /* Увеличиваем высоту линии */
+    background: #204d23d4;
+
+  }
+  
+.divider-bottom {
+    height: 30px; /* Увеличиваем высоту линии */
+    background: #204d23d4;
+  }
+
+  .reviews-modern {
+  padding: 80px 10%;
+  background: linear-gradient(to right, #236034, #e4e4e4, #fff);
+  font-family: 'Philosopher', sans-serif;
+  color: #121212;
+}
+
+.reviews-modern h2 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 50px;
+  color: #1c1c1c;
+  letter-spacing: 1px;
+}
+
+.review-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px; /* Увеличен отступ между отзывами */
+  margin-bottom: 40px; /* Добавлен отступ между верхним и нижним блоками */
+}
+
+/* Анимация появления для отзывов */
+.review-modern {
+  background: #ffffffd4;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid #204c23;
+  opacity: 0; /* Исходная прозрачность */
+  transform: translateY(30px); /* Исходное смещение вниз */
+  animation: fadeInUp 1s forwards; /* Анимация появления */
+}
+
+.review-modern:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.review-modern:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.review-modern:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+.review-modern:nth-child(4) {
+  animation-delay: 0.7s;
+}
+
+.review-modern:nth-child(5) {
+  animation-delay: 0.9s;
+}
+
+.review-modern:nth-child(6) {
+  animation-delay: 1.1s;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px); /* Начальное положение отзыва */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0); /* Конечное положение */
+  }
+}
+
+.review-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.review-header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+  border: 2px solid #3c7d3f;
+}
+
+.review-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.review-modern p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-top: 10px;
+  color: #333;
+}
+
+  
+  .stars {
+    font-size: 1.1rem;
+    color: #f2b01e;
+    margin-top: 4px;
+  }
+  
+
+
+.contacts-wide {
+    padding: 100px 10%;
+    background: linear-gradient(to left, #194a25, #dbdada, #ffffff);
+    font-family: 'Segoe UI', sans-serif;
+    color: #1c1c1c;
+  }
+  
+  .contacts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  
+  .contacts-wide h2 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+    color: #2e2e2e;
+    font-weight: 600;
+  }
+  
+  .map-container {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+  
+  .contact-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  
+  .contact-info li {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffffc2;
+    padding: 12px 18px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease;
+  }
+  
+  .contact-info li:hover {
+    transform: translateY(-2px);
+  }
+  
+  .contact-info i {
+    color: #3c7d3f;
+    font-size: 1.3rem;
+    min-width: 22px;
+  }
+  
+  .contact-info span {
+    font-weight: 500;
+    color: #2c2c2c;
+    min-width: 100px;
+  }
+  
+  .contact-info a {
+    color: #3c7d3f;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .contact-info a:hover {
+    text-decoration: underline;
+  }
+  
+  
+.bottom {
+  clip-path: polygon(0 0, 0 40%, 50% 100%, 100% 40%, 100% 0);
+}
+
+/* Animations */
+@keyframes fadeInLeft {
+  0% {opacity: 0; transform: translateX(-50px);}
+  100% {opacity: 1; transform: translateX(0);}
+}
+
+@keyframes fadeInRight {
+  0% {opacity: 0; transform: translateX(50px);}
+  100% {opacity: 1; transform: translateX(0);}
+}
+
+@keyframes fadeInUp {
+  0% {opacity: 0; transform: translateY(50px);}
+  100% {opacity: 1; transform: translateY(0);}
+}
+
+
+ 
+.back-link {
+  display: inline-block;
+  margin: 40px auto 20px;
+  padding: 10px 20px;
+  background-color: #1b7629a1;
+  color: #121212;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 30px;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background-color: #41d730a1;
+  transform: scale(1.05);
+}

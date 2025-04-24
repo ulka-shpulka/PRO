@@ -1,0 +1,137 @@
+body {
+  background-color: #121212;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  padding: 30px 20px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at top left, #9452018e, transparent 70%);
+  top: -150px;
+  left: -150px;
+  z-index: 0;
+  filter: blur(80px);
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at bottom right, #eda85433, transparent 70%);
+  bottom: -150px;
+  right: -150px;
+  z-index: 0;
+  filter: blur(80px);
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  z-index: 1;
+  position: relative;
+  animation: fadeIn 0.8s ease;
+}
+
+.title {
+  color: #eda854;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.category {
+  background: #1f1f1f;
+  border-left: 5px solid #eda854;
+  padding: 14px 18px;
+  margin-top: 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.category:hover {
+  background: #2a2a2a;
+}
+
+.services-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  padding-left: 15px;
+}
+
+.services-list.open {
+  max-height: 500px;
+  padding-top: 10px;
+}
+
+.service {
+  background: #292929;
+  margin: 8px 0;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  border-left: 4px solid #9452018e;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.service.selected {
+  background: linear-gradient(135deg, #9452018e, #eda854, #121212);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(237, 168, 84, 0.4);
+  transform: scale(1.02);
+}
+
+.service:hover {
+  background: #353535;
+  transform: translateX(5px);
+}
+
+.services-list {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.5s ease;
+  opacity: 0;
+  padding-left: 10px;
+}
+
+.services-list.open {
+  max-height: 500px; /* Достаточно большое значение */
+  opacity: 1;
+}
+
+
+
+
+
+.continue {
+  margin-top: 30px;
+  padding: 12px 20px;
+  width: 100%;
+  background-color: #eda854;
+  color: #121212;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px #eda85440;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+.continue:hover {
+  background-color: #ffbd6b;
+  transform: scale(1.02);
+}
+

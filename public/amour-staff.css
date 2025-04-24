@@ -1,0 +1,138 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #121212;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* Фоновая анимация */
+body::before, body::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.25;
+  z-index: 0;
+  animation: float 10s ease-in-out infinite alternate;
+}
+
+body::before {
+  width: 400px;
+  height: 400px;
+  background: #7b2cbf;
+  top: 15%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+body::after {
+  width: 450px;
+  height: 450px;
+  background: #c084fc;
+  bottom: 10%;
+  right: 10%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.2) translate(20px, -20px);
+    opacity: 0.35;
+  }
+}
+
+.container {
+  width: 90%;
+  max-width: 420px;
+  z-index: 1;
+  text-align: center;
+  animation: fadeInUp 1s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 1.6em;
+}
+
+#staffList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.staff {
+  background: linear-gradient(90deg, #591f6c, #972bbc8e);
+  padding: 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s, background 0.3s;
+}
+
+.staff:hover {
+  background: #a415c4;
+  transform: scale(1.02);
+}
+
+.staff-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.staff-experience {
+  font-size: 0.95em;
+  color: #e2e2e2;
+}
+
+/* 🔥 Выбранный сотрудник */
+.staff.selected {
+  background-color: #da6bff;
+  color: #ffffff;
+  box-shadow: 0 0 15px #c084fc;
+  transform: scale(1.02);
+}
+
+.continue {
+  margin-top: 30px;
+  width: 100%;
+  padding: 15px;
+  background-color: #a855f7;
+  border: none;
+  border-radius: 12px;
+  color: #121212;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+  box-shadow: 0 4px 20px rgba(237, 168, 84, 0.25);
+}
+
+.continue:hover {
+  background-color: #be41ca;
+  transform: scale(1.01);
+}

@@ -1,0 +1,200 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fef6f3;
+    color: #5a3e36;
+    animation: fadeInBody 1s ease-in-out;
+  }
+  
+  @keyframes fadeInBody {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .header {
+    position: relative;
+    height: 300px;
+    background: linear-gradient(145deg, #f7d7c4, #ecc1b5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logo-background {
+    font-size: 180px; /* Увеличиваем размер текста */
+    font-weight: bold;
+    color: #bf6e50;
+    position: absolute;
+    opacity: 0.3; /* Уменьшаем прозрачность для лучшего визуального эффекта */
+    z-index: 0;
+    pointer-events: none;
+    left: 50%;
+    bottom: -10%;
+    transform: translateX(-50%);
+  }
+  
+  .logo-placeholder {
+    font-size: 150px; /* Увеличиваем размер логотипа */
+    z-index: 1;
+    position: relative;
+    background-color: #fff1ec; /* Цвет фона для круга */
+    padding: 30px;
+    border-radius: 50%; /* Делаем логотип круглым */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Добавляем тень */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5%;
+  }
+  
+  .logo-placeholder img {
+    max-width: 100%; /* Убедимся, что изображение не выходит за пределы круга */
+    border-radius: 50%; /* Картинка тоже будет круглой */
+  }
+  
+  
+  .button-section {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+  }
+  
+  button {
+    background: #d4a373;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  button:hover {
+    background: #b98053;
+    transform: scale(1.05);
+  }
+  
+  .info-block {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff1ec;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    animation: fadeIn 0.5s ease;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .info-block a {
+    color: #a5643d;
+    text-decoration: none;
+  }
+  
+  .info-block a:hover {
+    text-decoration: underline;
+  }
+  
+  .reviews-section {
+    padding: 40px 20px;
+    background: #fae3dc;
+  }
+  
+  .reviews-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+  }
+  
+  .reviews-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .review-card {
+    background: #fff; /* Белый фон для каждого отзыва */
+    border-radius: 15px; /* Закругленные углы */
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень для блоков */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Анимация при наведении */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .review-card:hover {
+    transform: translateY(-5px); /* Легкое поднятие карточки */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Усиленная тень при наведении */
+  }
+  
+  .review-text {
+    font-size: 16px;
+    color: #5a3e36;
+    margin-bottom: 15px;
+  }
+  
+  .reviewer-name {
+    font-weight: bold;
+    color: #a5643d;
+    margin-bottom: 10px;
+  }
+  
+  .review-rating {
+    font-size: 20px;
+    color: #ffb400;
+  }
+  
+  #petals-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* чтобы он был позади */
+    pointer-events: none;
+  }
+  
+  
+  
+  .back-link {
+    display: inline-block;
+    margin: 40px auto 20px;
+    padding: 10px 20px;
+    background-color: #c27a8ca1;
+    color: #121212;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 30px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .back-link:hover {
+    background-color: #fbb1c3a1;
+    transform: scale(1.05);
+  }
+  

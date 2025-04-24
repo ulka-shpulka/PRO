@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Онлайн-запись</title>
+  <link rel="stylesheet" href="leo-online.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="selection" onclick="goTo('services')">
+      <div class="label">Услуга</div>
+      <div class="chosen" id="chosen-service">Не выбрано</div>
+      <span class="arrow">➤</span>
+    </div>
+
+    <div class="selection" onclick="goTo('staff')">
+      <div class="label">Сотрудник</div>
+      <div class="chosen" id="chosen-staff">Не выбрано</div>
+      <span class="arrow">➤</span>
+    </div>
+
+    <div class="selection" onclick="goTo('datetime')">
+      <div class="label">Дата и время</div>
+      <div class="chosen" id="chosen-datetime"><p id="chosen-time">Не выбрано</p></div>
+      <span class="arrow">➤</span>
+    </div>
+    
+
+    <button id="submitBtn" onclick="submitVisit()">ОФОРМИТЬ ВИЗИТ</button>
+    <a href="leo.html" class="back-link">← Назад</a>
+  </div>
+
+  <script src="leo-online.js"></script>
+</body>
+</html>

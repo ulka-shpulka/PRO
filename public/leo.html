@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Светская львица - Онлайн-запись</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="leo.css" />
+</head>
+<body>
+  <!-- Канвас для анимации узоров и линий -->
+  <canvas id="canvas"></canvas>
+
+  <!-- Градиентный фон с анимацией -->
+  <div class="gradient-background"></div>
+
+  <div class="content">
+    <div class="container">
+      <div class="left-section">
+        <!-- Логотип -->
+        <img src="leo.png" class="leo" alt="Логотип">
+        <div class="logo">Madame</div>
+      </div>
+
+      <div class="right-section">
+        <!-- Кнопки меню -->
+        <a href="leo-online.html" class="menu-button">Записаться</a>
+        <a href="contacts.html" class="menu-button" onclick="openContacts()">Контакты</a>
+        <a href="location.html" class="menu-button" onclick="openMap()">Местонахождение</a>
+      </div>
+    </div>
+
+    <section class="reviews">
+      <!-- Заголовок раздела отзывов -->
+      <h2>Отзывы наших клиентов</h2>
+
+      <!-- Отзывы -->
+      <div class="review-card">
+        <img src="human.avif" alt="Клиент" class="review-avatar">
+        <div>
+          <h4>Елена</h4>
+          <p>Очень понравилось обслуживание и доброжелательная атмосфера!</p>
+          <div class="stars">⭐⭐⭐☆☆</div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <img src="human.avif" alt="Клиент" class="review-avatar">
+        <div>
+          <h4>Мария</h4>
+          <p>Очень уютный салон, мастера знают своё дело. Вернусь снова!</p>
+          <div class="stars">⭐⭐⭐⭐☆</div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <img src="human.avif" alt="Клиент" class="review-avatar">
+        <div>
+          <h4>Ольга</h4>
+          <p>Хороший маникюр, но пришлось немного подождать.</p>
+          <div class="stars">⭐⭐⭐☆☆</div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <img src="human.avif" alt="Клиент" class="review-avatar">
+        <div>
+          <h4>Ольга</h4>
+          <p>Хороший маникюр, но пришлось немного подождать.</p>
+          <div class="stars">⭐⭐⭐☆☆</div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <img src="human.avif" alt="Клиент" class="review-avatar">
+        <div>
+          <h4>Анастасия</h4>
+          <p>Отличный массаж! Очень довольна результатом.</p>
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+        </div>
+      </div>
+      
+    </section>
+
+    <!-- Ссылка для возврата -->
+    <a href="index.html" class="back-link">← Назад</a>
+
+  </div>
+
+  <script src="leo.js"></script>
+</body>
+</html>

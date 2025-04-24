@@ -1,0 +1,139 @@
+b* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #121212;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at top left, #9452018e 0%, transparent 80%);
+  top: -100px;
+  left: -100px;
+  z-index: 0;
+  filter: blur(70px);
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at bottom right, #eda854 0%, transparent 70%);
+  bottom: -100px;
+  right: -100px;
+  z-index: 0;
+  filter: blur(80px);
+}
+
+.container {
+  width: 90%;
+  max-width: 420px;
+  z-index: 1;
+  animation: fadeInUp 1s ease forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selection {
+  background-color: rgba(148, 82, 1, 0.55); /* #9452018e */
+  margin: 15px 0;
+  padding: 20px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(237, 168, 84, 0.2);
+  transition: transform 0.3s, background 0.3s;
+}
+
+.selection:hover {
+  background-color: rgba(148, 82, 1, 0.7);
+  transform: scale(1.02);
+}
+
+.label {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #ffffff;
+}
+
+.chosen {
+  margin-top: 6px;
+  font-size: 0.95em;
+  color: #ffffffb3;
+}
+
+.arrow {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2em;
+  color: #eda854;
+}
+
+#submitBtn {
+  margin-top: 30px;
+  width: 100%;
+  padding: 15px;
+  background-color: #eda854;
+  border: none;
+  border-radius: 12px;
+  color: #121212;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+  box-shadow: 0 4px 20px rgba(237, 168, 84, 0.25);
+}
+
+#submitBtn:hover {
+  background-color: #ffc77b;
+  transform: scale(1.01);
+}
+/* Ссылка назад */
+.back-link {
+  display: inline-block;
+  margin: 40px auto 20px;
+  padding: 10px 20px;
+  background-color: #a56826a1;
+  color: #121212;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 30px;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background-color: #f0a63fa1;
+  transform: scale(1.05);
+}
+
+
+button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,155 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #121212;
+    background-size: 400% 400%;
+    animation: backgroundShift 15s ease infinite;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    width: 900px;
+    height: 600px;
+    background: radial-gradient(circle at top left, #9452018e, transparent 100%);
+    top: -150px;
+    left: -150px;
+    z-index: 0;
+    filter: blur(80px);
+  }
+  
+
+.container {
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 30px 25px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(237, 168, 84, 0.15);
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  animation: fadeIn 1s ease forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+h1 {
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+input[type="date"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  background-color: #1c1c1c;
+  color: white;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.available-box,
+.booked-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.available-box {
+  background-color: #eda854;
+}
+
+.booked-box {
+  background-color: #333;
+}
+
+.time-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.time-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.time-slot {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: #eda854;
+  color: #121212;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 6px rgba(237, 168, 84, 0.3);
+}
+
+.time-slot:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(237, 168, 84, 0.5);
+}
+
+.time-slot.selected {
+  background-color: #9452018e;
+  color: #fff;
+}
+
+.time-slot.booked {
+  background-color: #333;
+  color: #888;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#continueBtn {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  background-color: #eda854;
+  color: #121212;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(237, 168, 84, 0.3);
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+#continueBtn:hover {
+  background-color: #ffbb70;
+  transform: translateY(-2px);
+}

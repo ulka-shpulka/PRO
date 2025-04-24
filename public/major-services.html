@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Выбор услуги</title>
+  <link rel="stylesheet" href="major-services.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Выберите услугу</h1>
+
+    <div class="category" onclick="toggleCategory('hair')">Парикмахерские услуги</div>
+    <div class="services-list" id="hair">
+      <div class="service" onclick="selectService('Короткая(простая) (3000₸ / 1 ч)')">Короткая (простая) — 3000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Пикси (4000₸ / 1 ч)')">Пикси — 4000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Каскад (4000₸ / 1.5 ч)')">Каскад — 4000₸ / 1.5 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('hair coloring')">Окрашивание волос</div>
+    <div class="services-list" id="hair coloring">
+      <div class="service" onclick="selectService('Корни (3000₸+с/м / 3 ч)')">Корни — 3000₸+с/м / 3 ч</div>
+      <div class="service" onclick="selectService('Короткая стрижка (5000₸+с/м / 4 ч)')">Короткая стрижка — 5000₸+с/м / 4 ч</div>
+      <div class="service" onclick="selectService('Ниже плеч длина (7000₸-15000₸+с/м / 5-6 ч)')">Ниже плеч длина — 7000₸-15000₸+с/м / 5-6 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('highlighting of hair')">Мелирование волос</div>
+    <div class="services-list" id="highlighting of hair">
+      <div class="service" onclick="selectService('Короткая стрижка (7000₸ / 3 ч)')"> Короткая стрижка — 7000₸ / 3 ч</div>
+      <div class="service" onclick="selectService('Ниже плеч длина (10000₸ / 5 ч)')">Ниже плеч длина — 10000₸ / 5 ч</div>
+    </div>
+
+    <div class="category" onclick="toggleCategory('eyebrows')">Брови</div>
+    <div class="services-list" id="eyebrows">
+      <div class="service" onclick="selectService('Коррекция + форма (4000₸ / 2 ч)')">Коррекция + форма — 4000₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Коррекция + окрашивание (2500₸ / 1 ч)')">Коррекция + окрашивание — 2500₸ / 1 ч</div>
+      <div class="service" onclick="selectService('Комплекс коррекция бровей (4000₸ / 2 ч)')">Комплекс коррекция бровей — 4000₸ / 2 ч</div>
+    </div>
+
+    <button id="continueBtn" class="continue" onclick="window.location.href='major-online.html'" style="display: none;">
+      Продолжить запись
+    </button>
+  </div>
+
+  <script src="major-services.js"></script>
+</body>
+</html>
+

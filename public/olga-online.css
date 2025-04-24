@@ -1,0 +1,171 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: linear-gradient(135deg, #fff1ec, #b98053); /* обновлённый градиент */
+    font-family: 'Segoe UI', sans-serif;
+    color: #fff1ec; /* светлый кремовый для текста */
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  /* 🌫 НЕЖНЫЕ, ПЛАВНО АНИМИРУЕМЫЕ КАПЛИ */
+  body::before,
+  body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    z-index: 0;
+    animation: float 10s ease-in-out infinite alternate;
+  }
+  
+  body::before {
+    width: 400px;
+    height: 400px;
+    background: #ae7951; /* теплый коричневый */
+    top: 15%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+  
+  body::after {
+    width: 450px;
+    height: 450px;
+    background: #000000; /* золотой */
+    bottom: 10%;
+    right: 10%;
+    animation-delay: 4s;
+  }
+  
+  /* ✨ АНИМАЦИЯ ДЫХАНИЯ */
+  @keyframes float {
+    0% {
+      transform: scale(1) translate(0, 0);
+      opacity: 0.2;
+    }
+    100% {
+      transform: scale(1.2) translate(20px, -20px);
+      opacity: 0.35;
+    }
+  }
+  
+  .container {
+    width: 90%;
+    max-width: 420px;
+    z-index: 1;
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .selection {
+    background: linear-gradient(90deg, #fff1ec, #b98053); /* новый градиент */
+    margin: 15px 0;
+    padding: 20px 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(255, 180, 0, 0.25);
+    transition: transform 0.3s, background 0.3s;
+  }
+  
+  .selection:hover {
+    background: linear-gradient(90deg, #b98053, #000000); /* при наведении градиент меняется */
+    transform: scale(1.02);
+  }
+  
+  .label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #5a3e36; /* тёмно-коричневый */
+  }
+  
+  .chosen {
+    margin-top: 6px;
+    font-size: 0.95em;
+    color: #a5643d; /* тёплый коричневый */
+  }
+  
+  .arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2em;
+    color: #5a3e36; /* тёмно-коричневый */
+  }
+  
+  #submitBtn {
+    margin-top: 30px;
+    width: 100%;
+    padding: 15px;
+    background-color: #000000; /* золотой */
+    border: none;
+    border-radius: 12px;
+    color: #121212;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s;
+    box-shadow: 0 4px 20px rgba(255, 180, 0, 0.3);
+  }
+  
+  #submitBtn:hover {
+    background-color: #c4831b99; /* более яркий золотой */
+    transform: scale(1.01);
+    box-shadow: 0 8px 25px rgba(255, 180, 0, 0.5);
+  }
+  
+  /* Дополнительное использование оттенков */
+  button, .selection {
+    background: linear-gradient(90deg, #fff1ec, #b98053); /* градиент из ваших оттенков */
+    border: none;
+    border-radius: 12px;
+    color: white;
+    padding: 12px;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 180, 0, 0.3);
+  }
+  
+  button:hover, .selection:hover {
+    background: linear-gradient(90deg, #fff1ec, #fbb47e); /* градиент при наведении */
+    transform: scale(1.05);
+    box-shadow: 0 8px 30px rgba(255, 180, 0, 0.5);
+  }
+  
+  .back-link {
+    display: inline-block;
+    margin: 40px auto 20px;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #f7e6de, #a76532);
+    color: #121212;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 30px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .back-link:hover {
+    background: linear-gradient(90deg, #fff1ec, #b98053);
+    transform: scale(1.05);
+  }
+  

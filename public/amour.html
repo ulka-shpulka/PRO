@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Amor&Amur</title>
+  <link rel="stylesheet" href="amour.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1 class="salon-name">Студия красоты Amor&Amur</h1>
+    <div class="circle">
+      <img src="amour.jpg" alt="Логотип Amor&Amur" class="logo" />
+      <a href="amour-online.html" class="btn right-button">Записаться</a>
+      <button class="btn left-button">Местонахождение</button>
+      <button class="btn bottom-button" id="contactBtn">Контакты</button>
+    </div>
+  </div>
+
+  <section class="reviews">
+    <h2 class="reviews-title">Отзывы наших клиентов</h2>
+    <div class="bubbles">
+      <div class="bubble bubble1">
+        <p class="review-text">Очень уютная атмосфера и профессиональные мастера. Обязательно приду снова!</p>
+        <div class="stars">★★★★★</div>
+        <span class="client-name">— Анна</span>
+      </div>
+      <div class="bubble bubble3">
+        <p class="review-text">Идеальное место для расслабления и красоты. Рекомендую всем!</p>
+        <div class="stars">★★★★★</div>
+        <span class="client-name">— Ольга</span>
+      </div>
+      <div class="bubble bubble4">
+        <div class="review-text">Очень уютный салон, отличное обслуживание!</div>
+        <div class="stars">★★★★★</div>
+        <div class="client-name">Ирина</div>
+      </div>
+      <div class="bubble bubble5">
+        <div class="review-text">Персонал профессиональный и вежливый, буду приходить снова!</div>
+        <div class="stars">★★★★★</div>
+        <div class="client-name">Екатерина</div>
+      </div>
+      <div class="bubble bubble6">
+        <div class="review-text">Все было отлично, рекомендую всем!</div>
+        <div class="stars">★★★★★</div>
+        <div class="client-name">Марина</div>
+      </div>
+    </div>
+   
+  </section>
+
+  <a href="index.html" class="back-link">← Назад</a>
+
+  <!-- Карта и адрес -->
+  <div class="map-modal" id="mapModal">
+    <div class="map-content">
+      <span class="close-btn" id="closeMap">&times;</span>
+      <h2>Наш адрес</h2>
+      <p>г. Петропавлвоск, Интернациональная ул., 63</p>
+      <div class="map-frame">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2296.1688035774678!2d69.14212167732104!3d54.86484697276845!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x43b23a377b06e5bf%3A0x903c6a5d53645d9!2z0YPQuy4g0JjQvdGC0LXRgNC90LDRhtC40L7QvdCw0LvRjNC90LDRjyA2Mywg0J_QtdGC0YDQvtC_0LDQstC70L7QstGB0LogMTUwMDAw!5e0!3m2!1sru!2skz!4v1744981055593!5m2!1sru!2skz" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+          width="100%" height="100%" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок с контактами -->
+ <!-- Модальное окно с контактами -->
+<div class="contacts-modal" id="contactsModal">
+    <div class="contacts-content">
+      <span class="close-btn" id="closeContacts">&times;</span>
+      <h2>Наши Контакты</h2>
+      <p>Адрес: Петропавловск, Интернациональная ул., 63</p>
+      <p>Телефон: +7 (123) 456-78-90</p>
+      <p>Instagram: @amor_amur_studio</p>
+    </div>
+  </div>
+ 
+
+  <script src="amour.js"></script>
+</body>
+</html>

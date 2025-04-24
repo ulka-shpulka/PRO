@@ -1,0 +1,137 @@
+/* Основной стиль body */
+body {
+  background-color: #5a3e36;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff1ec;
+  padding: 30px 20px;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle at top left, #b98053, transparent 70%);
+  top: -150px;
+  left: -150px;
+  z-index: 0;
+  filter: blur(100px);
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at bottom right, #a5643d, transparent 70%);
+  bottom: -150px;
+  right: -150px;
+  z-index: 0;
+  filter: blur(100px);
+}
+
+/* Основной контейнер */
+.container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  opacity: 0;
+  animation: fadeInContent 1.5s ease-in-out forwards;
+  background: rgba(255, 241, 236, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 30px rgba(185, 128, 83, 0.3);
+}
+
+.title {
+  text-align: center;
+  font-size: 2rem;
+  color: #ffb400;
+  margin-bottom: 30px;
+}
+
+/* Категория */
+.category {
+  background: rgba(185, 128, 83, 0.2);
+  padding: 14px 20px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 1.1rem;
+  border-left: 4px solid #ffb400;
+  color: #fff1ec;
+  box-shadow: 0 0 6px rgba(255, 180, 0, 0.3);
+}
+
+.category:hover {
+  background: rgba(255, 180, 0, 0.3);
+}
+
+/* Список услуг */
+.services-list {
+  margin-left: 10px;
+  margin-bottom: 20px;
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.service {
+  background: rgba(255, 241, 236, 0.08);
+  margin: 6px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+  color: #fff1ec;
+}
+
+.service:hover {
+  background: rgba(255, 241, 236, 0.15);
+  border-left: 4px solid #b98053;
+}
+
+/* Выбранная услуга */
+.service.selected {
+  background: linear-gradient(135deg, #fff1ec, #b98053);
+  color: #5a3e36;
+  font-weight: bold;
+  border-left: 4px solid #a5643d;
+  box-shadow: 0 0 12px #b98053;
+}
+
+/* Кнопка продолжения */
+.continue {
+  background: linear-gradient(135deg, #b98053, #ffb400);
+  color: #fff1ec;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  display: block;
+  margin: 40px auto 0;
+  font-size: 1rem;
+  width: 200px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(255, 180, 0, 0.5);
+}
+
+.continue:hover {
+  background: linear-gradient(135deg, #ffb400, #fff1ec);
+  color: #5a3e36;
+  box-shadow: 0 0 20px rgba(255, 180, 0, 0.8);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInContent {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

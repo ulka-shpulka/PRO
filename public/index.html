@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Lumiere – Салон красоты и здоровья</title>
+        <link rel="stylesheet" href="css.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Open+Sans:wght@400&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    </head>
+    
+<body>
+    <div id="particles-js"></div>
+    <!-- Логотип и контактная информация -->
+     
+    <header  data-aos="fade-in">
+      <div class="logo-phone">
+        <div class="logo"> ℒ</div>
+        <div>
+          <h1 class="lu">Lumière</h1>
+          <p class="slogan">Красота и здоровье — в пару кликов</p>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <a href="#main-banner" class="button">ГЛАВНАЯ</a>
+        <a href="#salons" class="button">САЛОНЫ</a>
+        <a href="#articles" class="button">СТАТЬИ</a>
+        
+      </div>
+    </header>
+  
+    
+    
+
+    <!-- Баннер с услугами -->
+    <div class="container hidden" data-aos="fade-up">
+      <section id="main-banner" class="banner" data-aos="fade-in">
+            <div class="banner-container">
+                <div class="banner-video-wrapper">
+                    <video autoplay muted loop>
+                        <source src="video.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="banner-slide">
+                    <p>Маникюр и педикюр с любым дизайном</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    
+    <!-- Категории услуг -->
+    <div class="phone-1" data-aos="fade-left">
+        <section class="categories" id="salons">
+          <div class="h2">Салоны красоты Петропавловска</div>
+          <div class="p">Выберите нужный салон красоты</div>
+          
+          <div class="category-grid">
+            <div class="category-card">
+                <h3>Madame</h3>
+              <div class="blur-bg pink"></div>
+              <p class="category-description">Элегантный салон для современных дам. Уютная атмосфера, квалифицированные специалисты.</p>
+              <ul>
+                <li>Уход за волосами</li>
+                <li>Косметология</li>
+              </ul>
+              <a href="leo.html"><button class="more-btn">Подробнее</button></a>
+            </div>
+      
+            <div class="category-card">
+              <h3>Amor&Amur</h3>
+              <div class="blur-bg green"></div>
+              <p class="category-description">Студия красоты для ярких девушек: трендовые стрижки, эффектные укладки и безупречный маникюр.</p>
+              <ul>
+                <li>Визаж</li>
+                <li>Маникюр</li>
+              </ul>
+              <a href="amour.html"><button class="more-btn">Подробнее</button></a>
+            </div>
+      
+            <div class="category-card">
+              <h3>Мажор</h3>
+              <div class="blur-bg yellow"></div>
+              <p class="category-description">Барбершоп для него, для неё и для самых маленьких.</p>
+              <ul>
+                <li>Моделирование бороды</li>
+                <li>Окрашивание волос</li>
+              </ul>
+              <a href="major.html"><button class="more-btn">Подробнее</button></a>
+            </div>
+      
+            <div class="category-card">
+              <h3>Ольга</h3>
+              <div class="blur-bg purple"></div>
+              <p class="category-description">Уникальные услуги для мужчин и женщин. Косметология, массаж, уход за лицом.</p>
+              <ul>
+                <li>Чистка лица</li>
+                <li>Массаж</li>
+              </ul>
+              <a href="olga.html"><button class="more-btn">Подробнее</button></a>
+            </div>
+          </div>
+        </section>
+      </div>
+      
+    
+    
+    
+    
+
+    <!-- Раздел статей -->
+    <section class="articles" data-aos="fade-right" id="articles">
+      <h2>Статьи по красоте и здоровью</h2>
+      <div class="article-list">
+        <div class="article-card" onclick="openArticle(1)">
+          <h3>Секреты здоровых волос</h3>
+          <p>Как правильно ухаживать за волосами...</p>
+        </div>
+        <div class="article-card" onclick="openArticle(2)">
+          <h3>Как выбрать идеальный маникюр</h3>
+          <p>Советы по выбору формы и дизайна...</p>
+        </div>
+        <div class="article-card" onclick="openArticle(3)">
+          <h3>Польза массажа для здоровья</h3>
+          <p>Как массаж влияет на организм...</p>
+        </div>
+      </div>
+      <div class="article-list">
+        <div class="article-card" onclick="openArticle(4)">
+          <h3>Правильный уход за кожей лица</h3>
+          <p>Руководство по выбору средств и режиму ухода...</p>
+        </div>
+        <div class="article-card" onclick="openArticle(5)">
+          <h3>Тренды в мире макияжа 2025</h3>
+          <p>Что в моде этой весной: цвета, текстуры, техники...</p>
+        </div>
+        <div class="article-card" onclick="openArticle(6)">
+          <h3>Ароматерапия и её влияние на настроение</h3>
+          <p>Как эфирные масла помогают расслабиться и повысить энергию...</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Модальное окно -->
+    <div id="articleModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeArticle()">&times;</span>
+        <h3 id="modalTitle"></h3>
+        <p id="modalText"></p>
+      </div>
+    </div>
+    
+    
+    <script src="script.js"></script>
+    <div style="height: 150px;"></div>
+
+</body>
+</html>
