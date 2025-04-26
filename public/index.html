@@ -16,9 +16,9 @@
     <div id="particles-js"></div>
     <!-- Логотип и контактная информация -->
      
-    <header  data-aos="fade-in">
+    <header data-aos="fade-in">
       <div class="logo-phone">
-        <div class="logo"> ℒ</div>
+        <div class="logo">ℒ</div>
         <div>
           <h1 class="lu">Lumière</h1>
           <p class="slogan">Красота и здоровье — в пару кликов</p>
@@ -28,7 +28,11 @@
         <a href="#main-banner" class="button">ГЛАВНАЯ</a>
         <a href="#salons" class="button">САЛОНЫ</a>
         <a href="#articles" class="button">СТАТЬИ</a>
-        
+      </div>
+      <div class="burger-menu">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
       </div>
     </header>
   
@@ -45,7 +49,7 @@
                     </video>
                 </div>
                 <div class="banner-slide">
-                    <p>Маникюр и педикюр с любым дизайном</p>
+                
                 </div>
             </div>
         </section>
@@ -112,46 +116,47 @@
     
 
     <!-- Раздел статей -->
-    <section class="articles" data-aos="fade-right" id="articles">
-      <h2>Статьи по красоте и здоровью</h2>
-      <div class="article-list">
-        <div class="article-card" onclick="openArticle(1)">
-          <h3>Секреты здоровых волос</h3>
-          <p>Как правильно ухаживать за волосами...</p>
-        </div>
-        <div class="article-card" onclick="openArticle(2)">
-          <h3>Как выбрать идеальный маникюр</h3>
-          <p>Советы по выбору формы и дизайна...</p>
-        </div>
-        <div class="article-card" onclick="openArticle(3)">
-          <h3>Польза массажа для здоровья</h3>
-          <p>Как массаж влияет на организм...</p>
-        </div>
-      </div>
-      <div class="article-list">
-        <div class="article-card" onclick="openArticle(4)">
-          <h3>Правильный уход за кожей лица</h3>
-          <p>Руководство по выбору средств и режиму ухода...</p>
-        </div>
-        <div class="article-card" onclick="openArticle(5)">
-          <h3>Тренды в мире макияжа 2025</h3>
-          <p>Что в моде этой весной: цвета, текстуры, техники...</p>
-        </div>
-        <div class="article-card" onclick="openArticle(6)">
-          <h3>Ароматерапия и её влияние на настроение</h3>
-          <p>Как эфирные масла помогают расслабиться и повысить энергию...</p>
-        </div>
-      </div>
-    </section>
-    
-    <!-- Модальное окно -->
-    <div id="articleModal" class="modal hidden">
-      <div class="modal-content">
-        <span class="close-btn" onclick="closeArticle()">&times;</span>
-        <h3 id="modalTitle"></h3>
-        <p id="modalText"></p>
-      </div>
+  <!-- Раздел статей - сохраняем оригинальный код с data-aos атрибутом -->
+<section class="articles" data-aos="fade-right" id="articles">
+  <h2>Статьи по красоте и здоровью</h2>
+  <div class="article-list">
+    <div class="article-card" onclick="openArticle(1)">
+      <h3>Секреты здоровых волос</h3>
+      <p>Как правильно ухаживать за волосами...</p>
     </div>
+    <div class="article-card" onclick="openArticle(2)">
+      <h3>Как выбрать идеальный маникюр</h3>
+      <p>Советы по выбору формы и дизайна...</p>
+    </div>
+    <div class="article-card" onclick="openArticle(3)">
+      <h3>Польза массажа для здоровья</h3>
+      <p>Как массаж влияет на организм...</p>
+    </div>
+  </div>
+  <div class="article-list">
+    <div class="article-card" onclick="openArticle(4)">
+      <h3>Правильный уход за кожей лица</h3>
+      <p>Руководство по выбору средств и режиму ухода...</p>
+    </div>
+    <div class="article-card" onclick="openArticle(5)">
+      <h3>Тренды в мире макияжа 2025</h3>
+      <p>Что в моде этой весной: цвета, текстуры, техники...</p>
+    </div>
+    <div class="article-card" onclick="openArticle(6)">
+      <h3>Ароматерапия и её влияние на настроение</h3>
+      <p>Как эфирные масла помогают расслабиться и повысить энергию...</p>
+    </div>
+  </div>
+</section>
+    
+<!-- Модальное окно -->
+<div id="articleModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeArticle()">&times;</span>
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+  </div>
+</div>
     
     
     <script src="script.js"></script>

@@ -132,3 +132,87 @@ body::after {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 1000px) {
+  body {
+    padding: 20px 12px;
+  }
+
+  .container {
+    transform: scale(2);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 50px 30px;
+    margin-left: 200px;
+    margin-top: 65%;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+
+  .category {
+    font-size: 2rem;
+    padding: 28px 32px;
+  }
+
+  .service {
+    font-size: 1.7rem;
+    padding: 24px 30px;
+  }
+
+  .continue {
+    font-size: 5rem;
+    padding: 24px 28px;
+    width: 80%;
+  }
+
+  .employee, .date-time {
+    font-size: 1.7rem;
+    padding: 24px 28px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    transform: scale(2.15);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+
+  .title {
+    font-size: 10rem;
+  }
+
+  .category {
+    font-size: 1.6rem;
+    padding: 26px 30px;
+  }
+
+  .service {
+    font-size: 1.5rem;
+    padding: 22px 28px;
+  }
+
+  .continue {
+    font-size: 1.7rem;
+    padding: 22px 26px;
+    width: 80%;
+  }
+
+  .employee, .date-time {
+    font-size: 1.5rem;
+    padding: 22px 26px;
+  }
+}

@@ -364,3 +364,149 @@ body {
   background-color: #41d730a1;
   transform: scale(1.05);
 }
+
+
+
+/* Медиа-запрос для экранов шириной до 1000px */
+@media (max-width: 1000px) {
+  /* Общие стили */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Стили для секции hero */
+  .hero {
+    flex-direction: column;
+    padding: 30px 5%;
+    text-align: center;
+  }
+  
+  .left {
+    order: 2;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .right {
+    order: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .slogan {
+    font-size: 1.8rem;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  
+  .action-btn {
+    display: inline-block;
+    margin-top: 25px;
+  }
+  
+  .right .logo-oval {
+    width: 250px;
+    height: 230px;
+  }
+  
+  /* Стили для секции отзывов */
+  .reviews-modern {
+    padding: 40px 5%;
+  }
+  
+  .reviews-modern h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  
+  .review-row {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .review-modern {
+    padding: 20px;
+  }
+  
+  /* Стили для секции контактов */
+  .contacts-wide {
+    padding: 50px 5%;
+  }
+  
+  .contacts-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .contacts-wide h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  
+  .map-container {
+    height: 250px;
+  }
+  
+  .map-container iframe {
+    height: 250px;
+  }
+  
+  .contact-info li {
+    padding: 10px 15px;
+  }
+  
+  .contact-info span {
+    min-width: 80px;
+  }
+  
+  /* Стили для divider */
+  .divider, .divider-bottom {
+    height: 20px;
+  }
+  
+  /* Стили для кнопки "Назад" */
+  .back-link {
+    margin: 30px auto 15px;
+    display: block;
+    text-align: center;
+    width: fit-content;
+  }
+}
+
+/* Дополнительная оптимизация для очень маленьких экранов */
+@media (max-width: 480px) {
+  .slogan {
+    font-size: 1.5rem;
+    gap: 5px;
+  }
+  
+  .right .logo-oval {
+    width: 200px;
+    height: 180px;
+  }
+  
+  .reviews-modern h2 {
+    font-size: 1.7rem;
+  }
+  
+  .review-header img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .contact-info ul {
+    font-size: 0.95rem;
+  }
+  
+  .contact-info li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .contact-info i {
+    margin-bottom: 5px;
+  }
+}

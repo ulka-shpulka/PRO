@@ -481,3 +481,194 @@ body::after {
     transform: scale(1.05);
   }
   
+
+  /* Адаптивные стили для экранов меньше 1000px */
+@media (max-width: 1000px) {
+  /* Общие стили */
+  body {
+      padding-top: 30px;
+  }
+  
+  .container {
+      width: 100%;
+      margin-top: 20px;
+      padding: 0 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+  
+  .salon-name {
+      font-size: 30px;
+      margin-bottom: 20px;
+      text-align: center;
+  }
+  
+  /* Адаптируем логотип и кнопки */
+  .circle {
+      width: 280px;
+      height: 280px;
+      position: relative;
+      margin-bottom: 20px; /* Отступ между логотипом и кнопками */
+  }
+  
+  /* Удаляем абсолютное позиционирование кнопок */
+  .right-button,
+  .left-button,
+  .bottom-button {
+      position: static;
+      transform: none;
+      margin: 15px auto;
+      width: 220px;
+      display: block;
+
+  }
+
+
+  
+  /* Создаем контейнер для кнопок под логотипом */
+  .mobile-buttons-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 20px;
+  }
+  
+  /* Секция отзывов */
+  .reviews {
+      margin-top: 50px; /* Уменьшаем верхний отступ */
+      padding: 50px 15px;
+  }
+  
+  .reviews-title {
+      font-size: 24px;
+      margin-bottom: 30px;
+  }
+  
+  .bubbles {
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+  }
+  
+  .bubble {
+      position: static;
+      width: 90%;
+      height: auto;
+      min-height: 180px;
+      margin-bottom: 20px;
+  }
+  
+  /* Модальные окна */
+  .map-content, 
+  .contacts-content {
+      width: 95%;
+      padding: 20px;
+  }
+  
+  .map-frame {
+      height: 300px;
+  }
+  
+  /* Ссылка "назад" */
+  .back-link {
+      margin: 30px auto 20px;
+  }
+}
+
+
+
+/* Дополнительные стили для еще меньших экранов (смартфоны) */
+@media (max-width: 600px) {
+  .salon-name {
+      font-size: 24px;
+  }
+  
+  .circle {
+      width: 240px;
+      height: 240px;
+  }
+  
+  .btn {
+      padding: 10px 18px;
+      font-size: 12px;
+      width: 200px;
+  }
+  
+  .reviews-title {
+      font-size: 22px;
+  }
+  
+  .review-text {
+      font-size: 14px;
+  }
+  
+  .map-frame {
+      height: 250px;
+  }
+  
+  /* Уменьшаем размер фоновых элементов */
+  body::before {
+      width: 250px;
+      height: 250px;
+  }
+  
+  body::after {
+      width: 280px;
+      height: 280px;
+  }
+}
+
+@media (max-width: 1000px) {
+  /* Обновленные стили для мобильной версии */
+  
+  /* Контейнер для кнопок с правильными отступами */
+  .mobile-buttons-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 20px;
+      gap: 15px; /* Равномерные отступы между кнопками */
+  }
+  
+  /* Перемещаем кнопку Контакты вверх */
+  #contactBtn, .bottom-button {
+      position: static !important; /* Переопределяем возможное абсолютное позиционирование */
+      bottom: auto !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+  }
+  
+  /* Удаляем большие отступы у всех кнопок */
+  .btn {
+      margin: 0 !important;
+  }
+  
+  /* Фиксируем отступы между секциями */
+  .reviews {
+      margin-top: 40px !important; /* Уменьшаем отступ до секции с отзывами */
+  }
+  
+  /* Если у секции отзывов есть верхняя граница или тень, сделаем её более заметной */
+  .reviews {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 40px;
+  }
+  
+  /* Уменьшаем нижний отступ у circle */
+  .circle {
+      margin-bottom: 15px !important;
+  }
+}
+
+/* Дополнительно для кнопки "Контакты" - убираем позиционирование */
+@media (max-width: 1000px) {
+  .btn.bottom-button {
+      transform: none !important;
+      left: auto !important;
+  }
+}

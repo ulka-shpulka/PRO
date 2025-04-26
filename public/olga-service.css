@@ -135,3 +135,80 @@ body::after {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media screen and (max-width: 1000px) {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    transform: scale(1.5);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 50px 30px;
+    margin-left: 260px;
+  }
+
+  .category {
+    font-size: 1.8rem;
+    padding: 28px 32px;
+  }
+
+  .service {
+    font-size: 1.7rem;
+    padding: 24px 30px;
+  }
+
+  .continue {
+    font-size: 1.8rem;
+    padding: 24px 28px;
+  }
+
+  .employee, .date-time {
+    font-size: 1.7rem;
+    padding: 24px 28px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    transform: scale(1.15);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  .category {
+    font-size: 1.6rem;
+    padding: 26px 30px;
+  }
+
+  .service {
+    font-size: 1.5rem;
+    padding: 22px 28px;
+  }
+
+  .continue {
+    font-size: 1.7rem;
+    padding: 22px 26px;
+  }
+
+  .employee, .date-time {
+    font-size: 1.5rem;
+    padding: 22px 26px;
+  }
+}

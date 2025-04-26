@@ -32,7 +32,7 @@ body::after {
 }
 
 .container {
-  max-width: 500px;
+  max-width: 800px; /* Увеличена ширина контейнера */
   margin: 0 auto;
   z-index: 1;
   position: relative;
@@ -48,8 +48,8 @@ body::after {
 .category {
   background: #1f1f1f;
   border-left: 5px solid #eda854;
-  padding: 14px 18px;
-  margin-top: 15px;
+  padding: 18px 24px; /* Увеличены отступы */
+  margin-top: 20px; /* Увеличены отступы между категориями */
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
@@ -64,20 +64,20 @@ body::after {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease, padding 0.4s ease;
-  padding-left: 15px;
+  padding-left: 20px; /* Увеличены отступы */
 }
 
 .services-list.open {
   max-height: 500px;
-  padding-top: 10px;
+  padding-top: 12px;
 }
 
 .service {
   background: #292929;
-  margin: 8px 0;
-  padding: 10px 15px;
+  margin: 12px 0; /* Увеличены отступы между сервисами */
+  padding: 12px 18px; /* Увеличены внутренние отступы */
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 1rem; /* Увеличен размер шрифта */
   color: #f0f0f0;
   border-left: 4px solid #9452018e;
   cursor: pointer;
@@ -96,33 +96,16 @@ body::after {
   transform: translateX(5px);
 }
 
-.services-list {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.5s ease, opacity 0.5s ease;
-  opacity: 0;
-  padding-left: 10px;
-}
-
-.services-list.open {
-  max-height: 500px; /* Достаточно большое значение */
-  opacity: 1;
-}
-
-
-
-
-
 .continue {
-  margin-top: 30px;
-  padding: 12px 20px;
+  margin-top: 40px; /* Увеличены отступы */
+  padding: 15px 20px; /* Увеличены размеры кнопки */
   width: 100%;
   background-color: #eda854;
   color: #121212;
   border: none;
   border-radius: 10px;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.2rem; /* Увеличен размер шрифта кнопки */
   cursor: pointer;
   box-shadow: 0 4px 10px #eda85440;
   transition: background 0.3s, transform 0.2s;
@@ -135,3 +118,79 @@ body::after {
   transform: scale(1.02);
 }
 
+@media screen and (max-width: 1000px) {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    transform: scale(1.5);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 50px 30px;
+    margin-left: 260px;
+  }
+
+  .category {
+    font-size: 1.8rem;
+    padding: 28px 32px;
+  }
+
+  .service {
+    font-size: 1.7rem;
+    padding: 24px 30px;
+  }
+
+  .continue {
+    font-size: 1.8rem;
+    padding: 24px 28px;
+  }
+
+  .employee, .date-time {
+    font-size: 1.7rem;
+    padding: 24px 28px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    transform: scale(1.15);
+    transform-origin: center;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  .category {
+    font-size: 1.6rem;
+    padding: 26px 30px;
+  }
+
+  .service {
+    font-size: 1.5rem;
+    padding: 22px 28px;
+  }
+
+  .continue {
+    font-size: 1.7rem;
+    padding: 22px 26px;
+  }
+
+  .employee, .date-time {
+    font-size: 1.5rem;
+    padding: 22px 26px;
+  }
+}
