@@ -114,7 +114,7 @@ function submitVisit() {
 // Функция для отправки данных на сервер
 function sendBookingData(service, staff, date, time) {
   // URL вашего API (замените на реальный URL вашего сервера)
-  const apiUrl = "https://pro-1-qldl.onrender.com/botWebhook";
+  const apiUrl = "https://pro-1-qldl.onrender.com";
   
 
   
