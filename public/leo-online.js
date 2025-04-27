@@ -1,30 +1,15 @@
-// Проверяем наличие токена при загрузке страницы
-document.addEventListener("DOMContentLoaded", function () {
-  // Генерация простого клиентского токена если он еще не существует
-  if (!localStorage.getItem("clientToken")) {
-    const randomToken = Math.random().toString(36).substring(2, 15) + 
-                        Math.random().toString(36).substring(2, 15);
-    localStorage.setItem("clientToken", randomToken);
-  }
-  
-  // Остальной код DOMContentLoaded...
-});
-
-// Общий скрипт для системы онлайн-записи
-
 document.addEventListener("DOMContentLoaded", function () {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
 
-  // Обновление интерфейса выбранными данными
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
   document.getElementById("chosen-time").textContent = datetime ? formatDateTime(datetime) : "Не выбрано";
 
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = !(service && staff && datetime);
-
+  
   if (submitBtn.disabled) {
     submitBtn.classList.add("disabled");
   } else {
@@ -42,23 +27,13 @@ function formatDateTime(datetimeStr) {
   return `${day}.${month}.${year} в ${hours}:${minutes}`;
 }
 
-function goTo(page) {
-  if (page === 'services') {
-    localStorage.removeItem("selectedEmployee");
-    localStorage.removeItem("selectedDatetime");
-  }
-  if (page === 'staff') {
-    localStorage.removeItem("selectedDatetime");
-  }
-  window.location.href = `${page}.html`;
-}
-
-async function submitVisit() {
+function submitVisit() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
+  const userId = getTelegramUserId(); // Получаем userId, это может быть ID пользователя Telegram, полученный при старте
 
-  if (!service || !staff || !datetime) {
+  if (!service || !staff || !datetime || !userId) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
     return;
   }
@@ -66,7 +41,7 @@ async function submitVisit() {
   const confirmed = confirm(
     "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
   );
-
+  
   if (!confirmed) return;
 
   const submitBtn = document.getElementById("submitBtn");
@@ -76,64 +51,52 @@ async function submitVisit() {
 
   const [date, time] = datetime.split("T");
 
-  try {
-    const response = await sendBookingData(service, staff, date, time);
-    if (response.success) {
-      alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
-    } else {
-      throw new Error(response.error || "Неизвестная ошибка");
-    }
-  } catch (error) {
-    console.error("Ошибка при оформлении записи:", error);
-    alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
-  } finally {
-    window.open("https://t.me/MLfeBot", "_blank");
-    localStorage.clear();
-    document.getElementById("chosen-service").textContent = "Не выбрано";
-    document.getElementById("chosen-staff").textContent = "Не выбрано";
-    document.getElementById("chosen-time").textContent = "Не выбрано";
-    submitBtn.disabled = true;
-    submitBtn.classList.add("disabled");
-    submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
+  sendBookingData(service, staff, date, time, userId) // Передаем userId
+    .then((response) => {
+      if (response.success) {
+        alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
+      } else {
+        throw new Error(response.error || "Неизвестная ошибка");
+      }
+    })
+    .catch((error) => {
+      console.error("Ошибка при оформлении записи:", error);
+      alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
+    })
+    .finally(() => {
+      window.open("https://t.me/MLfeBot", "_blank");
+      localStorage.clear();
+      document.getElementById("chosen-service").textContent = "Не выбрано";
+      document.getElementById("chosen-staff").textContent = "Не выбрано";
+      document.getElementById("chosen-time").textContent = "Не выбрано";
+      submitBtn.disabled = true;
+      submitBtn.classList.add("disabled");
+      submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
 
-    setTimeout(() => {
-      window.location.href = "leo.html";
-    }, 2000);
-  }
+      setTimeout(() => {
+        window.location.href = "leo.html";
+      }, 2000);
+    });
 }
 
-async function sendBookingData(service, staff, date, time) {
+function sendBookingData(service, staff, date, time, userId) {
   const apiUrl = "https://pro-1-qldl.onrender.com/api/booking";
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("clientToken") // Добавлено для авторизации
-      },
-      body: JSON.stringify({ service, staff, date, time }),
-    });
+  return fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ service, staff, date, time, userId }) // Передаем userId
+  }).then((response) => {
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }
     return response.json();
-  } catch (error) {
-    console.error("Ошибка при отправке данных:", error);
-    throw error; // Перебрасываем ошибку для обработки в submitVisit
-  }
+  });
 }
 
-function selectService(serviceName) {
-  localStorage.setItem("selectedService", serviceName);
-  goTo('staff');
-}
-
-function selectStaff(staffName) {
-  localStorage.setItem("selectedEmployee", staffName);
-  goTo('datetime');
-}
-
-function selectDateTime(datetime) {
-  localStorage.setItem("selectedDatetime", datetime);
-  goTo('leo-online');
+// Предположим, что у вас есть функция для получения userId
+function getTelegramUserId() {
+  // В реальном приложении нужно хранить этот ID после старта бота
+  return localStorage.getItem('telegramUserId'); // Например, сохраняем его в localStorage
 }
