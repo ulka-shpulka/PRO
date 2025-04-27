@@ -69,7 +69,6 @@ async function savePendingBooking(bookingData) {
   }
 }
 
-
 function saveData() {
   console.log("💾 Сохраняем выбранные данные в localStorage");
 }
@@ -93,8 +92,7 @@ function createTelegramMessage() {
   
   const formattedDateTime = formatDateTime(datetime);
   
-  return `
-Новая запись!
+  return `Новая запись!
 Услуга: ${service}
 Специалист: ${staff}
 Дата и время: ${formattedDateTime}
@@ -136,8 +134,8 @@ function prepareBookingData() {
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = localStorage.getItem("telegramUserId");
 
-  if (!service || !staff || !datetime) {
-    console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime });
+  if (!service || !staff || !datetime || !userId) {
+    console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime, userId });
     return null;
   }
 
