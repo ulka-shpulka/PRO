@@ -2,14 +2,13 @@ console.log("=== ДИАГНОСТИКА ЗАГРУЗКИ СКРИПТА ===");
 console.log("Скрипт leo-online.js загружен");
 console.log("document.readyState:", document.readyState);
 
-// API URL configuration - make sure this matches your server
+// API URL configuration
 const API_BASE_URL = "https://pro-1-qldl.onrender.com/api";
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 // Navigation function
 window.goTo = function(section) {
   console.log(`🔀 Переход на страницу: ${section}`);
-  
   switch (section) {
     case 'services':
       window.location.href = "services.html";
@@ -49,18 +48,17 @@ function formatDateTime(isoString) {
   return date.toLocaleString('ru-RU', options);
 }
 
-// Очистка данных при загрузке страницы
+// Очистка данных записи
 function clearStoredBookingData() {
-  // Очищаем только данные о записи, но сохраняем userId
   const userId = localStorage.getItem("userId");
-  localStorage.clear();
+  localStorage.removeItem("selectedService");
+  localStorage.removeItem("selectedEmployee");
+  localStorage.removeItem("selectedDatetime");
+  console.log("🧹 Данные о записи очищены");
   
-  // Восстанавливаем userId, если он был
   if (userId) {
     localStorage.setItem("userId", userId);
   }
-  
-  console.log("🧹 Данные о записи очищены");
 }
 
 // Render saved data from localStorage to page
@@ -80,40 +78,24 @@ function renderSavedData() {
   }
 }
 
-// Load DOM event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("📦 Страница полностью загружена");
-  
-  // Очищаем данные бронирования при загрузке главной страницы
-  if (window.location.pathname === "/" || window.location.pathname.includes("index") || window.location.pathname.includes("leo-online")) {
-    clearStoredBookingData();
-  }
-  
-  renderSavedData();
-});
-
-// Save pending booking to the server - simplified to reduce errors
+// Save pending booking to the server
 async function savePendingBooking(bookingData) {
   try {
     console.log("Отправляем данные на сервер:", bookingData);
-    
+
     const response = await fetch(`${API_BASE_URL}/pending-booking`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bookingData)
     });
-    
-    // Handle non-OK responses
+
     if (!response.ok) {
       console.error(`Сервер вернул ошибку ${response.status}`);
       return false;
     }
-    
+
     const data = await response.json();
     console.log('Ответ сервера:', data);
-    
     return data.success === true;
   } catch (error) {
     console.error('Ошибка при сохранении записи:', error);
@@ -132,7 +114,7 @@ function loadSavedData() {
   };
 }
 
-// Selection functions
+// Выборы услуги, сотрудника, даты/времени
 function selectService(serviceName) {
   console.log("Выбрана услуга:", serviceName);
   localStorage.setItem("selectedService", serviceName);
@@ -148,7 +130,6 @@ function selectStaff(staffName) {
 function selectDateTime(datetime) {
   console.log("Выбраны дата и время:", datetime);
 
-  // Проверяем, что дата и время в правильном формате
   const dateObj = new Date(datetime);
   if (isNaN(dateObj.getTime())) {
     console.error("❌ Неверный формат даты:", datetime);
@@ -160,7 +141,7 @@ function selectDateTime(datetime) {
   goTo('leo-online');
 }
 
-// Generate unique user ID if not present
+// Создание userId
 function ensureUserId() {
   let userId = localStorage.getItem("userId");
   if (!userId) {
@@ -170,13 +151,13 @@ function ensureUserId() {
   return userId;
 }
 
-// Prepare booking data for submission
+// Подготовка данных для бронирования
 function prepareBookingData() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = ensureUserId();
-  
+
   if (!service || !staff || !datetime) {
     console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime });
     return null;
@@ -184,8 +165,6 @@ function prepareBookingData() {
 
   try {
     const [date, time] = datetime.split('T');
-    
-    // Дополнительная проверка на формат даты и времени
     if (!date || !time) {
       console.error("❌ Неверный формат даты и времени:", datetime);
       return null;
@@ -197,7 +176,7 @@ function prepareBookingData() {
       date, 
       time, 
       userId,
-      timestamp: new Date().toISOString() // Добавляем метку времени для сортировки
+      timestamp: new Date().toISOString()
     };
   } catch (error) {
     console.error("❌ Ошибка при подготовке данных записи:", error);
@@ -205,12 +184,10 @@ function prepareBookingData() {
   }
 }
 
-// Создаем и показываем модальное окно с просьбой подписаться на бота
+// Модальное окно Telegram
 function showTelegramModal() {
-  // Проверяем, существует ли уже модальное окно
   let modal = document.getElementById("telegram-modal");
-  
-  // Если нет, создаем его
+
   if (!modal) {
     modal = document.createElement("div");
     modal.id = "telegram-modal";
@@ -224,7 +201,7 @@ function showTelegramModal() {
     modal.style.justifyContent = "center";
     modal.style.alignItems = "center";
     modal.style.zIndex = "1000";
-    
+
     const modalContent = document.createElement("div");
     modalContent.style.backgroundColor = "white";
     modalContent.style.borderRadius = "10px";
@@ -232,22 +209,22 @@ function showTelegramModal() {
     modalContent.style.maxWidth = "500px";
     modalContent.style.width = "90%";
     modalContent.style.textAlign = "center";
-    
+
     const header = document.createElement("h2");
     header.textContent = "Подтверждение записи";
     header.style.marginBottom = "15px";
     header.style.color = "#444";
-    
+
     const message = document.createElement("p");
-    message.innerHTML = "Для подтверждения записи, пожалуйста, подпишитесь на нашего Telegram бота.<br><br><b>После подписки на бота, отправьте ему команду /start, чтобы получить подтверждение вашей записи.</b>";
+    message.innerHTML = "Для подтверждения записи, пожалуйста, подпишитесь на нашего Telegram бота.<br><br><b>После подписки отправьте ему команду /start.</b>";
     message.style.marginBottom = "20px";
     message.style.lineHeight = "1.5";
-    
+
     const buttonContainer = document.createElement("div");
     buttonContainer.style.display = "flex";
     buttonContainer.style.justifyContent = "center";
     buttonContainer.style.gap = "10px";
-    
+
     const confirmButton = document.createElement("button");
     confirmButton.textContent = "Перейти к боту";
     confirmButton.style.padding = "10px 20px";
@@ -256,7 +233,7 @@ function showTelegramModal() {
     confirmButton.style.border = "none";
     confirmButton.style.borderRadius = "5px";
     confirmButton.style.cursor = "pointer";
-    
+
     const cancelButton = document.createElement("button");
     cancelButton.textContent = "Отмена";
     cancelButton.style.padding = "10px 20px";
@@ -265,68 +242,62 @@ function showTelegramModal() {
     cancelButton.style.border = "none";
     cancelButton.style.borderRadius = "5px";
     cancelButton.style.cursor = "pointer";
-    
-    // Добавляем обработчики событий
-    confirmButton.onclick = async () => {
-      // Скрываем модальное окно
+
+    confirmButton.onclick = () => {
       modal.style.display = "none";
-      
-      // Открываем Telegram бота в новой вкладке
       window.open(TELEGRAM_BOT_URL, "_blank");
     };
-    
+
     cancelButton.onclick = () => {
       modal.style.display = "none";
     };
-    
-    // Собираем модальное окно
+
     buttonContainer.appendChild(confirmButton);
     buttonContainer.appendChild(cancelButton);
-    
     modalContent.appendChild(header);
     modalContent.appendChild(message);
     modalContent.appendChild(buttonContainer);
-    
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
   } else {
-    // Если модальное окно уже существует, просто показываем его
     modal.style.display = "flex";
   }
 }
 
-// Handle the submission process
+// Submit booking
 window.submitVisit = async function() {
   console.log("=== НАЧАЛО ВЫПОЛНЕНИЯ submitVisit() ===");
-  
-  // Check if all required data is selected
+
   const { service, staff, datetime } = loadSavedData();
   if (!service || !staff || !datetime) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
     return;
   }
-  
-  // Prepare booking data
+
   const bookingData = prepareBookingData();
   if (!bookingData) {
-    alert("Не удалось подготовить данные записи. Проверьте все поля.");
+    alert("Не удалось подготовить данные записи.");
     return;
   }
 
-  // Сохраняем данные записи на сервере
   const success = await savePendingBooking(bookingData);
-  
+
   if (success) {
-    // Показываем модальное окно с предложением подписаться на Telegram бота
     showTelegramModal();
   } else {
-    alert("❌ Не удалось сохранить запись. Попробуйте позже или свяжитесь с администратором.");
+    alert("❌ Не удалось сохранить запись. Попробуйте позже.");
   }
 };
 
-// Добавляем обработчик события для очистки данных при закрытии/обновлении страницы
-window.addEventListener('beforeunload', function() {
-  if (window.location.pathname === "/" || window.location.pathname.includes("index") || window.location.pathname.includes("leo-online")) {
-    clearStoredBookingData();
+// Загрузка страницы
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("📦 Страница полностью загружена");
+
+  if (performance.getEntriesByType("navigation")[0].type === "reload") {
+    if (window.location.pathname === "/" || window.location.pathname.includes("index") || window.location.pathname.includes("leo-online")) {
+      clearStoredBookingData();
+    }
   }
+
+  renderSavedData();
 });
