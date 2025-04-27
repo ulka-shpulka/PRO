@@ -35,6 +35,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+<<<<<<< HEAD
 // Функция для удаления старого вебхука
 const removeWebhook = async () => {
   try {
@@ -66,6 +67,30 @@ app.post(`/botWebhook`, (req, res) => {
   console.log('Received update:', req.body); // Логирование полученных данных
   bot.processUpdate(req.body);
   res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
+=======
+// Удаляем старый вебхук перед установкой нового
+bot.removeWebHook()
+  .then(() => {
+    console.log('🌐 Старый вебхук удален');
+    // Теперь устанавливаем новый вебхук
+    bot.setWebHook(`${domain}/botWebhook`)
+      .then(() => {
+        console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
+      })
+      .catch(error => {
+        console.error('Ошибка при установке Webhook:', error);
+      });
+  })
+  .catch(error => {
+    console.error('Ошибка при удалении старого вебхука:', error);
+  });
+
+// Устанавливаем Webhook для Telegram
+bot.setWebHook(`${domain}/botWebhook`).then(() => {
+  console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
+}).catch(error => {
+  console.error('Ошибка при установке Webhook:', error);
+>>>>>>> 30f9741af8327607eb30d6fb54c74c3be2111594
 });
 
 // Обработка записи с сайта
