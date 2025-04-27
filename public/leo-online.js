@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
   document.getElementById("chosen-time").textContent = 
     datetime ? formatDateTime(datetime) : "Не выбрано";
-
+ 
   // Активация кнопки только при наличии необходимой информации
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = !(service && staff && datetime);
@@ -114,10 +114,9 @@ function submitVisit() {
 // Функция для отправки данных на сервер
 function sendBookingData(service, staff, date, time) {
   // URL вашего API (замените на реальный URL вашего сервера)
-  const apiUrl = " https://lumire.onrender.com/7649901748:AAE-yAcdXAQKmIoO45ErEdVfdicBGD6dwKs";
+  const apiUrl = "https://pro-1-qldl.onrender.com/botWebhook";
   
-  // Для продакшена используйте полный URL вашего сервера
-  // const apiUrl = "https://ваш-домен.com/book";
+
   
   return fetch(apiUrl, {
     method: "POST",

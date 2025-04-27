@@ -63,13 +63,17 @@ removeWebhook().then(() => {
 
 // Обработка Webhook от Telegram
 app.post(`/botWebhook`, (req, res) => {
-  console.log('Received update:', req.body); // Логирование полученных данных
-  bot.processUpdate(req.body);
+  console.log('Received POST request to /botWebhook');
+  console.log('Request body:', req.body); // Логирование полученных данных запроса
+  bot.processUpdate(req.body); // Обработка обновлений от Telegram
   res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
 });
 
 // Обработка записи с сайта
 app.post('/book', (req, res) => {
+  console.log('Received POST request to /book');
+  console.log('Request body:', req.body); // Логирование полученных данных запроса
+  
   const { service, staff, date, time } = req.body;
 
   if (!service || !staff || !date || !time) {
