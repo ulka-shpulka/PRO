@@ -5,6 +5,30 @@ console.log("=== ДИАГНОСТИКА ЗАГРУЗКИ СКРИПТА ===");
 console.log("Скрипт leo-online.js загружен");
 console.log("document.readyState:", document.readyState);
 
+
+window.goTo = function(section) {
+  console.log(`🔀 Переход на страницу: ${section}`);
+  
+  // Тут можно настроить переход куда угодно
+  switch (section) {
+    case 'services':
+      window.location.href = "services.html";
+      break;
+    case 'staff':
+      window.location.href = "staff.html";
+      break;
+    case 'datetime':
+      window.location.href = "datetime.html";
+      break;
+    case 'leo-online':
+      window.location.href = "leo-online.html";
+      break;
+    default:
+      console.error(`❌ Неизвестный раздел: ${section}`);
+  }
+};
+
+
 // Константы
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot"; // <-- твой бот здесь
 
@@ -79,8 +103,47 @@ function getTelegramUserId() {
   return localStorage.getItem('telegramUserId');
 }
 
-// Остальной твой код (checkData, checkDOMElements, formatDateTime, goTo и т.д.)
-// ... (он остаётся полностью таким, как ты прислал выше)
+function prepareBookingData() {
+  const service = localStorage.getItem("selectedService");
+  const staff = localStorage.getItem("selectedEmployee");
+  const datetime = localStorage.getItem("selectedDatetime");
+  const userId = localStorage.getItem("telegramUserId");
+
+  if (!service || !staff || !datetime) {
+    console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime });
+    return null;
+  }
+
+  const [date, time] = datetime.split('T'); // Разбиваем на дату и время
+
+  return { service, staff, date, time, userId };
+}
+
+function formatDateTime(isoString) {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+  const options = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+
+  return date.toLocaleString('ru-RU', options);
+}
+
+
+function checkDOMElements() {
+  return {
+    serviceElement: document.getElementById("selectedService"),
+    staffElement: document.getElementById("selectedEmployee"),
+    timeElement: document.getElementById("selectedDatetime")
+  };
+}
+
+
 
 // Главная функция обработки записи
 window.submitVisit = function() {
