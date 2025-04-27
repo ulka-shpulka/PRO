@@ -3,29 +3,40 @@ document.addEventListener("DOMContentLoaded", function () {
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = localStorage.getItem("telegramUserId");
-
+  
   console.log("Service:", service);
   console.log("Staff:", staff);
   console.log("Datetime:", datetime);
   console.log("User ID:", userId);
-
+  
   // Обновление текста на странице
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
   document.getElementById("chosen-time").textContent = datetime ? formatDateTime(datetime) : "Не выбрано";
-
+  
   const submitBtn = document.getElementById("submitBtn");
-
-  // Деактивация кнопки, если что-то не выбрано
-  const isFormComplete = service && staff && datetime && userId;
-  submitBtn.disabled = !isFormComplete;
-
-  console.log("Form complete:", isFormComplete);
-
-  if (submitBtn.disabled) {
-    submitBtn.classList.add("disabled");
+  
+  // Проверка существования кнопки на странице
+  if (submitBtn) {
+    // Деактивация кнопки, если что-то не выбрано
+    const isFormComplete = service && staff && datetime && userId;
+    submitBtn.disabled = !isFormComplete;
+    console.log("Form complete:", isFormComplete);
+    
+    if (submitBtn.disabled) {
+      submitBtn.classList.add("disabled");
+    } else {
+      submitBtn.classList.remove("disabled");
+    }
+    
+    // Добавляем обработчик события click на кнопку
+    submitBtn.addEventListener("click", function() {
+      if (!submitBtn.disabled) {
+        submitVisit();
+      }
+    });
   } else {
-    submitBtn.classList.remove("disabled");
+    console.error("Кнопка submitBtn не найдена в DOM");
   }
 });
 
@@ -56,28 +67,27 @@ function submitVisit() {
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = localStorage.getItem("telegramUserId");
-
   console.log("Submitting Visit with data:", { service, staff, datetime, userId });
-
+  
   if (!service || !staff || !datetime || !userId) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
     return;
   }
-
+  
   const confirmed = confirm(
     "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
   );
   
   if (!confirmed) return;
-
+  
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = true;
   submitBtn.classList.add("disabled");
   submitBtn.textContent = "Отправка...";
-
+  
   const [date, time] = datetime.split("T");
-
-  sendBookingData(service, staff, date, time, userId) // Передаем userId
+  
+  sendBookingData(service, staff, date, time, userId)
     .then((response) => {
       if (response.success) {
         alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
@@ -98,7 +108,6 @@ function submitVisit() {
       submitBtn.disabled = true;
       submitBtn.classList.add("disabled");
       submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
-
       setTimeout(() => {
         window.location.href = "leo.html";
       }, 2000);
@@ -112,7 +121,7 @@ function sendBookingData(service, staff, date, time, userId) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ service, staff, date, time, userId }) // Передаем userId
+    body: JSON.stringify({ service, staff, date, time, userId })
   }).then((response) => {
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
