@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
+  const userId = localStorage.getItem("telegramUserId");
 
   // Обновление текста на странице
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = document.getElementById("submitBtn");
 
   // Деактивация кнопки, если что-то не выбрано
-  submitBtn.disabled = !(service && staff && datetime);
+  submitBtn.disabled = !(service && staff && datetime && userId);
 
   if (submitBtn.disabled) {
     submitBtn.classList.add("disabled");
@@ -45,7 +46,7 @@ function submitVisit() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
-  const userId = getTelegramUserId(); // Получаем userId, который сохраняется после старта бота
+  const userId = localStorage.getItem("telegramUserId"); // Получаем userId
 
   if (!service || !staff || !datetime || !userId) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
@@ -109,13 +110,10 @@ function sendBookingData(service, staff, date, time, userId) {
   });
 }
 
-// Функция получения userId из localStorage (или с другого места, в зависимости от реализации)
 function getTelegramUserId() {
-  // Здесь предполагаем, что userId сохраняется в localStorage
-  return localStorage.getItem('telegramUserId'); // Считываем из localStorage
+  return localStorage.getItem('telegramUserId');
 }
 
-// Селекторы для кнопок
 function selectService(serviceName) {
   localStorage.setItem("selectedService", serviceName);
   goTo('staff');

@@ -37,14 +37,12 @@ app.use(express.static('public'));
 
 // Простая авторизация для API запросов
 const apiAuth = (req, res, next) => {
-  // Здесь можно реализовать более серьезную авторизацию
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
     return res.status(401).json({ success: false, error: 'Токен не предоставлен' });
   }
-  
-  // В реальном приложении здесь была бы проверка токена
+
   next();
 };
 
