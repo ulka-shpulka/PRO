@@ -11,13 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Загружаем токен и домен из переменных окружения
-const token = process.env.BOT_TOKEN;
-const domain = process.env.DOMAIN;
-const adminChatId = process.env.ADMIN_CHAT_ID;
+const token = process.env.BOT_TOKEN;  // Используем переменную BOT_TOKEN
+const domain = process.env.DOMAIN;    // Используем переменную DOMAIN
+const adminChatId = process.env.ADMIN_CHAT_ID; // Используем ADMIN_CHAT_ID
+const port = process.env.PORT || 3000;  // Используем PORT
 
-// Проверка на наличие токена
-if (!token || !domain) {
-  console.error('❌ BOT_TOKEN и DOMAIN должны быть установлены в .env файле');
+// Проверка на наличие токена и домена
+if (!token || !domain || !adminChatId) {
+  console.error('❌ BOT_TOKEN, DOMAIN и ADMIN_CHAT_ID должны быть установлены в .env файле');
   process.exit(1);
 }
 
@@ -33,14 +34,22 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Устанавливаем Webhook
-bot.setWebHook(`${domain}/bot${token}`);
+// Устанавливаем Webhook для Telegram
+bot.setWebHook(`${domain}/bot${token}`)
+  .then(() => {
+    console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
+  })
+  .catch(error => {
+    console.error('Ошибка при установке Webhook:', error);
+  });
 
 // Обработка Webhook от Telegram
 app.post(`/bot${token}`, (req, res) => {
   bot.processUpdate(req.body);
-  res.sendStatus(200);
+  res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
 });
+
+
 
 // Обработка записи с сайта
 app.post('/book', (req, res) => {
@@ -59,9 +68,7 @@ app.post('/book', (req, res) => {
 ⏰ Время: ${time}
   `;
 
-  const chatId = process.env.ADMIN_CHAT_ID; // тоже из .env
-
-  bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
+  bot.sendMessage(adminChatId, message, { parse_mode: 'Markdown' })
     .then(() => res.status(200).json({ success: true, message: 'Запись успешно оформлена!' }))
     .catch(error => {
       console.error('Ошибка при отправке сообщения:', error);
@@ -112,6 +119,7 @@ const handlers = {
   '📞 Связаться с нами': 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.'
 };
 
+// Обработка входящих сообщений
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text;
@@ -119,7 +127,6 @@ bot.on('message', (msg) => {
   if (handlers[text]) {
     bot.sendMessage(chatId, handlers[text], { parse_mode: 'Markdown' });
   } else if (text && !text.startsWith('/')) {
-    const adminChatId = process.env.ADMIN_CHAT_ID;
     const userName = msg.from.username ? `@${msg.from.username}` : 'Неизвестный пользователь';
     const userInfo = `Сообщение от ${userName} (${msg.from.first_name} ${msg.from.last_name || ''}):\n\n${text}`;
 
@@ -132,5 +139,9 @@ bot.on('message', (msg) => {
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
-  console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
 });
+
+
+console.log('BOT_TOKEN:', process.env.BOT_TOKEN);
+console.log('DOMAIN:', process.env.DOMAIN);
+console.log('ADMIN_CHAT_ID:', process.env.ADMIN_CHAT_ID);
