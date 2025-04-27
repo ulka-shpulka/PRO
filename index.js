@@ -44,58 +44,84 @@ function getLastBookingForUser(chatId) {
 
 // Команда /start
 bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  const username = msg.from.username || `user_${msg.from.id}`;
+  try {
+    const chatId = msg.chat.id;
+    
+    // Проверяем, что у нас есть данные пользователя
+    if (!msg.from) {
+      console.error('Ошибка: msg.from отсутствует в сообщении');
+      bot.sendMessage(chatId, 'Произошла ошибка при обработке команды. Пожалуйста, попробуйте снова.');
+      return;
+    }
+    
+    const username = msg.from.username || `user_${msg.from.id}`;
+    console.log(`Получена команда /start от пользователя ${username}, chatId: ${chatId}`);
+    
+    // Сохраняем информацию о пользователе
+    users[chatId] = { username, lastBookingId: null };
 
-  // Инициализируем пользователя, даже если не найдем для него записи
-  users[chatId] = { username, lastBookingId: null };
-
-  let newestBooking = null;
-  let newestBookingId = null;
-  let newestTimestamp = 0;
-
-  // Проверяем, есть ли вообще записи
-  if (Object.keys(pendingBookings).length > 0) {
-    Object.entries(pendingBookings).forEach(([id, booking]) => {
-      // Проверяем, что запись не подтверждена и не отменена
-      if (booking && !booking.confirmed && !booking.cancelled) {
-        const ts = booking.timestamp ? new Date(booking.timestamp).getTime() : 0;
-        if (ts > newestTimestamp) {
-          newestTimestamp = ts;
-          newestBooking = booking;
-          newestBookingId = id;
-        }
+    // Ищем неподтвержденные записи
+    let availableBookings = [];
+    
+    for (const [id, booking] of Object.entries(pendingBookings)) {
+      if (booking && booking.confirmed === false && booking.cancelled === false) {
+        availableBookings.push({
+          id,
+          booking,
+          timestamp: booking.timestamp ? new Date(booking.timestamp).getTime() : 0
+        });
       }
-    });
-
+    }
+    
+    // Сортируем по времени создания (от новых к старым)
+    availableBookings.sort((a, b) => b.timestamp - a.timestamp);
+    
+    // Берем самую свежую запись
+    const newestBooking = availableBookings.length > 0 ? availableBookings[0] : null;
+    
     if (newestBooking) {
-      // Обновляем lastBookingId для пользователя
-      users[chatId].lastBookingId = newestBookingId;
+      const booking = newestBooking.booking;
+      const bookingId = newestBooking.id;
+      
+      // Обновляем данные пользователя с ID записи
+      users[chatId].lastBookingId = bookingId;
       
       // Привязываем chatId к записи
-      newestBooking.chatId = chatId;
+      booking.chatId = chatId;
       
       // Форматируем данные с проверкой на undefined
-      const service = newestBooking.service || 'Не указана';
-      const staff = newestBooking.staff || 'Не указан';
-      const date = newestBooking.date || 'Не указана';
-      const time = newestBooking.time || 'Не указано';
+      const service = booking.service || 'Не указана';
+      const staff = booking.staff || 'Не указан';
+      const date = booking.date || 'Не указана';
+      const time = booking.time || 'Не указано';
       
-      return bot.sendMessage(chatId, `🎉 Ваша запись найдена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
+      bot.sendMessage(chatId, `🎉 Ваша запись найдена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "✅ Подтвердить", callback_data: `confirm_${newestBookingId}` }],
-            [{ text: "❌ Отменить", callback_data: `cancel_${newestBookingId}` }]
+            [{ text: "✅ Подтвердить", callback_data: `confirm_${bookingId}` }],
+            [{ text: "❌ Отменить", callback_data: `cancel_${bookingId}` }]
           ]
         }
+      }).catch(error => {
+        console.error('Ошибка при отправке сообщения с записью:', error);
+      });
+    } else {
+      // Если нет записей - отправляем приветственное сообщение
+      bot.sendMessage(chatId, `Добро пожаловать в Leo Beauty! ✨\n\nДля записи перейдите на наш сайт.`)
+      .catch(error => {
+        console.error('Ошибка при отправке приветственного сообщения:', error);
       });
     }
+  } catch (error) {
+    console.error('Критическая ошибка в обработчике /start:', error);
+    
+    try {
+      bot.sendMessage(msg.chat.id, 'Произошла ошибка при обработке команды. Пожалуйста, попробуйте снова позже.');
+    } catch (e) {
+      console.error('Не удалось отправить сообщение об ошибке:', e);
+    }
   }
-  
-  // Если нет записей или нет подходящей записи, отправляем приветственное сообщение
-  bot.sendMessage(chatId, `Добро пожаловать в Leo Beauty! ✨\n\nДля записи перейдите на наш сайт.`);
 });
-
 // Обработка кнопок
 bot.on('callback_query', async (query) => {
   try {
