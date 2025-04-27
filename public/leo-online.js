@@ -1,5 +1,3 @@
-// leo-online.js - скрипт для страницы онлайн-записи
-
 document.addEventListener("DOMContentLoaded", function () {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
@@ -11,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = !(service && staff && datetime);
-  
+
   if (submitBtn.disabled) {
     submitBtn.classList.add("disabled");
   } else {
@@ -40,7 +38,7 @@ function goTo(page) {
   window.location.href = `${page}.html`;
 }
 
-function submitVisit() {
+async function submitVisit() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
@@ -53,7 +51,7 @@ function submitVisit() {
   const confirmed = confirm(
     "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
   );
-  
+
   if (!confirmed) return;
 
   const submitBtn = document.getElementById("submitBtn");
@@ -63,48 +61,50 @@ function submitVisit() {
 
   const [date, time] = datetime.split("T");
 
-  sendBookingData(service, staff, date, time)
-    .then((response) => {
-      if (response.success) {
-        alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
-      } else {
-        throw new Error(response.error || "Неизвестная ошибка");
-      }
-    })
-    .catch((error) => {
-      console.error("Ошибка при оформлении записи:", error);
-      alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
-    })
-    .finally(() => {
-      window.open("https://t.me/MLfeBot", "_blank");
-      localStorage.clear();
-      document.getElementById("chosen-service").textContent = "Не выбрано";
-      document.getElementById("chosen-staff").textContent = "Не выбрано";
-      document.getElementById("chosen-time").textContent = "Не выбрано";
-      submitBtn.disabled = true;
-      submitBtn.classList.add("disabled");
-      submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
+  try {
+    const response = await sendBookingData(service, staff, date, time);
+    if (response.success) {
+      alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
+    } else {
+      throw new Error(response.error || "Неизвестная ошибка");
+    }
+  } catch (error) {
+    console.error("Ошибка при оформлении записи:", error);
+    alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
+  } finally {
+    window.open("https://t.me/MLfeBot", "_blank");
+    localStorage.clear();
+    document.getElementById("chosen-service").textContent = "Не выбрано";
+    document.getElementById("chosen-staff").textContent = "Не выбрано";
+    document.getElementById("chosen-time").textContent = "Не выбрано";
+    submitBtn.disabled = true;
+    submitBtn.classList.add("disabled");
+    submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
 
-      setTimeout(() => {
-        window.location.href = "leo.html";
-      }, 2000);
-    });
+    setTimeout(() => {
+      window.location.href = "leo.html";
+    }, 2000);
+  }
 }
 
-function sendBookingData(service, staff, date, time) {
+async function sendBookingData(service, staff, date, time) {
   const apiUrl = "https://pro-1-qldl.onrender.com/api/booking";
-  return fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ service, staff, date, time }),
-  }).then((response) => {
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ service, staff, date, time }),
+    });
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }
     return response.json();
-  });
+  } catch (error) {
+    console.error("Ошибка при отправке данных:", error);
+    throw error; // Перебрасываем ошибку для обработки в submitVisit
+  }
 }
 
 function selectService(serviceName) {
