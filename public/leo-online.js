@@ -8,6 +8,9 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 // Навигация
 window.goTo = function(section) {
+  // Сохраняем текущий URL для возврата после выбора
+  localStorage.setItem("returnUrl", window.location.href);
+  
   switch (section) {
     case 'services':
     case 'staff':
@@ -43,20 +46,25 @@ function renderSavedData() {
   const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
   const datetime = localStorage.getItem("selectedDatetime") || "Не выбрано";
 
-  document.getElementById("chosen-service")?.textContent = service;
-  document.getElementById("chosen-staff")?.textContent = staff;
-  document.getElementById("chosen-time")?.textContent = 
-    datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
+  const serviceElement = document.getElementById("chosen-service");
+  const staffElement = document.getElementById("chosen-staff");
+  const timeElement = document.getElementById("chosen-time");
+  
+  if (serviceElement) serviceElement.textContent = service;
+  if (staffElement) staffElement.textContent = staff;
+  if (timeElement) timeElement.textContent = datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
     
   // Обновляем доступность кнопки Оформить визит
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn) {
     if (service === "Не выбрано" || staff === "Не выбрано" || datetime === "Не выбрано") {
       submitBtn.disabled = true;
-      submitBtn.classList.add("disabled");
+      submitBtn.style.opacity = "0.6";
+      submitBtn.style.cursor = "not-allowed";
     } else {
       submitBtn.disabled = false;
-      submitBtn.classList.remove("disabled");
+      submitBtn.style.opacity = "1";
+      submitBtn.style.cursor = "pointer";
     }
   }
 }
@@ -132,7 +140,6 @@ function showTelegramModal() {
     // Создаем модальное окно, если оно еще не существует
     modal = document.createElement("div");
     modal.id = "telegram-modal";
-    modal.className = "modal";
     modal.style = `
       position: fixed; 
       top: 0; 
@@ -147,7 +154,7 @@ function showTelegramModal() {
     `;
     
     modal.innerHTML = `
-      <div class="modal-content" style="
+      <div style="
         background: white; 
         padding: 30px; 
         border-radius: 10px; 
@@ -168,7 +175,6 @@ function showTelegramModal() {
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.3s;
           ">Перейти к боту</button>
           <button id="cancel-modal" style="
             padding: 12px 25px; 
@@ -178,7 +184,6 @@ function showTelegramModal() {
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.3s;
           ">Отмена</button>
         </div>
       </div>
@@ -233,17 +238,111 @@ window.submitVisit = async function() {
   }
 };
 
+// Инициализация страниц соответствующих разделов
+function initServicesPage() {
+  // Проверяем, находимся ли мы на странице услуг
+  if (!document.querySelector('.service-list')) return;
+  
+  // Добавляем обработчики к элементам услуг
+  const serviceItems = document.querySelectorAll('.service-item');
+  serviceItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const serviceName = this.querySelector('.service-name').textContent;
+      localStorage.setItem('selectedService', serviceName);
+      
+      // Переходим назад или на следующий шаг
+      const returnUrl = localStorage.getItem('returnUrl') || 'leo-online.html';
+      window.location.href = returnUrl;
+    });
+  });
+}
+
+function initStaffPage() {
+  // Проверяем, находимся ли мы на странице сотрудников
+  if (!document.querySelector('.staff-list')) return;
+  
+  // Добавляем обработчики к элементам сотрудников
+  const staffItems = document.querySelectorAll('.staff-item');
+  staffItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const staffName = this.querySelector('.staff-name').textContent;
+      localStorage.setItem('selectedEmployee', staffName);
+      
+      // Переходим назад или на следующий шаг
+      const returnUrl = localStorage.getItem('returnUrl') || 'leo-online.html';
+      window.location.href = returnUrl;
+    });
+  });
+}
+
+function initDatetimePage() {
+  // Проверяем, находимся ли мы на странице выбора даты и времени
+  if (!document.querySelector('.datetime-picker')) return;
+  
+  // Добавляем обработчик для кнопки подтверждения даты и времени
+  const dateTimeConfirmBtn = document.getElementById('confirm-datetime');
+  if (dateTimeConfirmBtn) {
+    dateTimeConfirmBtn.addEventListener('click', function() {
+      const dateInput = document.getElementById('date-picker');
+      const timeInput = document.getElementById('time-picker');
+      
+      if (dateInput && timeInput && dateInput.value && timeInput.value) {
+        const isoDateTime = `${dateInput.value}T${timeInput.value}`;
+        localStorage.setItem('selectedDatetime', isoDateTime);
+        
+        // Переходим назад или на следующий шаг
+        const returnUrl = localStorage.getItem('returnUrl') || 'leo-online.html';
+        window.location.href = returnUrl;
+      } else {
+        alert('Пожалуйста, выберите дату и время');
+      }
+    });
+  }
+  
+  // Установка минимальной даты (сегодня)
+  const dateInput = document.getElementById('date-picker');
+  if (dateInput) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    dateInput.min = `${yyyy}-${mm}-${dd}`;
+  }
+}
+
 // При загрузке
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOMContentLoaded событие сработало");
-  renderSavedData();
   
-  // Очищаем данные при перезагрузке главной страницы
-  if (performance.getEntriesByType("navigation")[0].type === "reload" &&
-      (location.pathname.includes("index") || location.pathname.endsWith("/") || 
-       location.pathname.includes("leo-online"))) {
-    clearStoredBookingData();
+  // Определяем, на какой странице мы находимся
+  const currentPage = window.location.pathname.split('/').pop();
+  console.log("Текущая страница:", currentPage);
+  
+  // Инициализируем соответствующую страницу
+  if (currentPage.includes('services')) {
+    initServicesPage();
+  } else if (currentPage.includes('staff')) {
+    initStaffPage();
+  } else if (currentPage.includes('datetime')) {
+    initDatetimePage();
+  } else if (currentPage.includes('leo-online') || currentPage === 'index.html' || currentPage === '') {
+    renderSavedData();
+    
+    // Очищаем данные при перезагрузке главной страницы
+    if (performance.getEntriesByType("navigation")[0].type === "reload") {
+      clearStoredBookingData();
+      renderSavedData(); // Обновляем отображение после очистки
+    }
   }
+  
+  // Добавляем обработчики для элементов навигации на любой странице
+  const selectionElements = document.querySelectorAll('.selection');
+  selectionElements.forEach(element => {
+    element.addEventListener('click', function() {
+      const section = this.getAttribute('onclick').match(/goTo\('(.+?)'\)/)[1];
+      if (section) goTo(section);
+    });
+  });
 });
 
 // Для диагностики - выводим сохраненные данные в консоль
