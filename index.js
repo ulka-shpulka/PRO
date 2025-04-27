@@ -1,43 +1,47 @@
-// index.js - основной файл сервера для интеграции с Telegram-ботом
+// index.js - основной файл сервера для Telegram-бота
+require('dotenv').config(); // подключаем .env
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 
-// Создаем экземпляр Express приложения
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Токен вашего Telegram-бота (замените на ваш реальный токен)
-const token = '7649901748:AAE-yAcdXAQKmIoO45ErEdVfdicBGD6dwKs';
-const domain = 'https://lumire.onrender.com'; // 🔁 ЗАМЕНИ на актуальный HTTPS-домен (например, Render)
+// Загружаем токен и домен из переменных окружения
+const token = process.env.BOT_TOKEN;
+const domain = process.env.DOMAIN;
+
+// Проверка на наличие токена
+if (!token || !domain) {
+  console.error('❌ BOT_TOKEN и DOMAIN должны быть установлены в .env файле');
+  process.exit(1);
+}
 
 const bot = new TelegramBot(token, { webHook: true });
-
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
-
-// Указываем Express обслуживать статические файлы из папки public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🟣 Отдаём index.html при заходе на /
+// Отдаём index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 📌 Устанавливаем Webhook для Telegram
-bot.setWebHook(`${domain}/${token}`);
+// Устанавливаем Webhook
+bot.setWebHook(`${domain}/bot${token}`);
 
-// ✅ Webhook endpoint от Telegram
-app.post(`/${token}`, (req, res) => {
+// Обработка Webhook от Telegram
+app.post(`/bot${token}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-// 📅 Обработка записи с сайта
+// Обработка записи с сайта
 app.post('/book', (req, res) => {
   const { service, staff, date, time } = req.body;
 
@@ -54,7 +58,7 @@ app.post('/book', (req, res) => {
 ⏰ Время: ${time}
   `;
 
-  const chatId = '1005939833';
+  const chatId = process.env.ADMIN_CHAT_ID; // тоже из .env
 
   bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
     .then(() => res.status(200).json({ success: true, message: 'Запись успешно оформлена!' }))
@@ -66,11 +70,12 @@ app.post('/book', (req, res) => {
 
 // === Обработчики Telegram ===
 
+// Приветствие
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || '';
 
-  const welcomeMessage = `
+  bot.sendMessage(chatId, `
 Привет, ${firstName}! 👋
 
 Добро пожаловать в бот нашего салона.
@@ -80,9 +85,7 @@ bot.onText(/\/start/, (msg) => {
 • Связаться с администратором
 
 Спасибо, что выбрали нас!
-  `;
-
-  bot.sendMessage(chatId, welcomeMessage, {
+  `, {
     reply_markup: {
       keyboard: [
         ['💇‍♀️ Мои записи'],
@@ -94,39 +97,30 @@ bot.onText(/\/start/, (msg) => {
   });
 });
 
-bot.onText(/💇‍♀️ Мои записи/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'В настоящее время у вас нет активных записей. Чтобы записаться, посетите наш сайт.');
-});
-
-bot.onText(/ℹ️ Информация о салоне/, (msg) => {
-  const info = `
+// Обработка кнопок
+const handlers = {
+  '💇‍♀️ Мои записи': 'В настоящее время у вас нет активных записей. Чтобы записаться, посетите наш сайт.',
+  'ℹ️ Информация о салоне': `
 *О нашем салоне*
 
 🏠 Адрес: [Ваш адрес]
 ⏰ График работы: Пн-Вс с 10:00 до 20:00
 📞 Телефон: [Ваш телефон]
 🌐 Сайт: [Ваш сайт]
-  `;
-  bot.sendMessage(msg.chat.id, info, { parse_mode: 'Markdown' });
-});
-
-bot.onText(/📞 Связаться с нами/, (msg) => {
-  bot.sendMessage(msg.chat.id, 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.');
-});
+  `,
+  '📞 Связаться с нами': 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.'
+};
 
 bot.on('message', (msg) => {
   const chatId = msg.chat.id;
+  const text = msg.text;
 
-  if (
-    msg.text &&
-    !msg.text.startsWith('/') &&
-    !msg.text.includes('Мои записи') &&
-    !msg.text.includes('Информация') &&
-    !msg.text.includes('Связаться')
-  ) {
-    const adminChatId = '1005939833';
+  if (handlers[text]) {
+    bot.sendMessage(chatId, handlers[text], { parse_mode: 'Markdown' });
+  } else if (text && !text.startsWith('/')) {
+    const adminChatId = process.env.ADMIN_CHAT_ID;
     const userName = msg.from.username ? `@${msg.from.username}` : 'Неизвестный пользователь';
-    const userInfo = `Сообщение от ${userName} (${msg.from.first_name} ${msg.from.last_name || ''}):\n\n${msg.text}`;
+    const userInfo = `Сообщение от ${userName} (${msg.from.first_name} ${msg.from.last_name || ''}):\n\n${text}`;
 
     bot.sendMessage(adminChatId, userInfo)
       .then(() => bot.sendMessage(chatId, 'Спасибо за сообщение! Мы ответим вам в ближайшее время.'))
@@ -134,8 +128,8 @@ bot.on('message', (msg) => {
   }
 });
 
-// Запускаем сервер
+// Запуск сервера
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
-  console.log(`🌐 Webhook установлен по адресу: ${domain}/${token}`);
+  console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
 });

@@ -237,6 +237,10 @@ canvas {
     background: #fff;
     transition: all 0.3s ease;
   }
+
+  .menu-button {
+    margin-top: 5%;
+  }
 }
 
 @media (min-width: 1001px) {

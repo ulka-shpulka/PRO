@@ -76,7 +76,7 @@
   .title {
     margin-bottom: 20px;
     font-size: 1.6em;
-    color: #b98053; /* тёплый акцент в заголовке */
+    color: #231913;
   }
   
   #staffList {
@@ -103,7 +103,7 @@
     font-weight: bold;
     font-size: 1.1em;
     margin-bottom: 5px;
-    color: #b98053;
+    color: #503b2d;
   }
   
   .staff-experience {
@@ -113,7 +113,7 @@
   
   /* 🔥 Выбранный сотрудник */
   .staff.selected {
-    background-color: #b98053;
+    background-color: #e6b189;
     color: #fff1ec;
     box-shadow: 0 0 15px rgba(185, 128, 83, 0.4);
     transform: scale(1.02);

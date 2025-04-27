@@ -75,12 +75,16 @@ function renderTimeSlots(date) {
         slot.classList.add("selected"); // Подсвечиваем выбранное время
         selectedTime = time;
 
-        // Сохраняем выбранную дату и время в localStorage
-        localStorage.setItem("selectedDate", selectedDate);
-        localStorage.setItem("selectedTime", selectedTime);
+        // Создаем объект даты
+        const [year, month, day] = selectedDate.split('-');
+        const [hours, minutes] = selectedTime.split(':');
         
-        // Дополнительно сохраняем их в одном формате, чтобы красиво отобразить на главной
-        localStorage.setItem("selectedDatetime", `${selectedDate} в ${selectedTime}`);
+        // Формируем ISO строку в формате YYYY-MM-DDThh:mm
+        // Этот формат ожидается функцией formatDateTime на главной странице
+        const isoDateTime = `${selectedDate}T${selectedTime}`;
+        
+        // Сохраняем выбранную дату и время в localStorage в правильном формате
+        localStorage.setItem("selectedDatetime", isoDateTime);
 
         continueBtn.style.display = "block"; // Показываем кнопку
       });

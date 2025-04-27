@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выбор салона</title>
+  <link rel="stylesheet" href="leo-online.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Выберите салон</h1>
+    
+    <div class="salons-grid">
+      <div class="salon-card" onclick="selectSalon('Madame'); window.location.href='leo-online.html';">
+        <img src="images/salon1.jpg" alt="Салон Madame">
+        <h3>Madame</h3>
+        <p>Элитный салон красоты с полным спектром услуг</p>
+      </div>
+      
+      <div class="salon-card" onclick="selectSalon('Amor&Amur'); window.location.href='leo-online.html';">
+        <img src="images/salon2.jpg" alt="Салон Amor&Amur">
+        <h3>Amor&Amur</h3>
+        <p>Стильный салон с профессиональными мастерами</p>
+      </div>
+      
+      <div class="salon-card" onclick="selectSalon('Major'); window.location.href='leo-online.html';">
+        <img src="images/salon3.jpg" alt="Салон Major">
+        <h3>Major</h3>
+        <p>Салон премиум-класса для истинных ценителей красоты</p>
+      </div>
+      
+      <div class="salon-card" onclick="selectSalon('Ольга'); window.location.href='leo-online.html';">
+        <img src="images/salon4.jpg" alt="Салон Ольга">
+        <h3>Ольга</h3>
+        <p>Уютный салон с индивидуальным подходом</p>
+      </div>
+    </div>
+    
+    <div class="back-button">
+      <button onclick="window.location.href='leo-online.html';">Назад</button>
+    </div>
+  </div>
+  
+  <script src="leo-online.js"></script>
+</body>
+</html>

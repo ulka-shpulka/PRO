@@ -3,9 +3,13 @@ body {
   background-color: #121212;
   font-family: 'Segoe UI', sans-serif;
   color: white;
-  padding: 30px 20px;
+  padding: 0;
   overflow-x: hidden;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 body::before {
@@ -32,31 +36,33 @@ body::after {
   filter: blur(80px);
 }
 
-
 /* Основной контейнер */
 .container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
+  max-width: 800px; /* Увеличена ширина контейнера */
+  padding: 50px 30px; /* Увеличены отступы */
   opacity: 0;
-  animation: fadeInContent 1.5s ease-in-out forwards; /* анимация появления контента */
+  animation: fadeInContent 1.5s ease-in-out forwards;
+  background-color: rgba(18, 18, 18, 0.9);
+  border-radius: 12px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 2.8rem; /* Увеличен размер шрифта */
   color: #c18cf3;
   margin-bottom: 30px;
 }
 
 .category {
   background: #25142f;
-  padding: 14px 20px;
+  padding: 18px 22px; /* Увеличены отступы */
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   cursor: pointer;
   transition: background 0.3s ease;
-  font-size: 1.1rem;
+  font-size: 1.3rem; /* Увеличен размер шрифта */
   border-left: 4px solid #8f3ccf;
 }
 
@@ -74,8 +80,8 @@ body::after {
 
 .service {
   background: #1e1e1e;
-  margin: 6px 0;
-  padding: 10px 14px;
+  margin: 8px 0;
+  padding: 14px 18px; /* Увеличены отступы */
   border-radius: 8px;
   cursor: pointer;
   border-left: 4px solid transparent;
@@ -89,25 +95,25 @@ body::after {
 
 /* Стили для выбранной услуги */
 .service.selected {
-  background: linear-gradient(135deg, #5f289b, #9b59b6); /* Градиентный фон */
-  color: #fff; /* Белый текст */
+  background: linear-gradient(135deg, #5f289b, #9b59b6);
+  color: #fff;
   font-weight: bold;
-  border-left: 4px solid #c084fc; /* Фиолетовая граница */
-  box-shadow: 0 0 12px #6f42c1; /* Тень */
+  border-left: 4px solid #c084fc;
+  box-shadow: 0 0 12px #6f42c1;
   transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .continue {
   background: linear-gradient(135deg, #6a0dad, #9b59b6);
   color: white;
-  padding: 12px 24px;
+  padding: 16px 28px; /* Увеличены отступы */
   border: none;
   border-radius: 30px;
   cursor: pointer;
   display: block;
   margin: 40px auto 0;
-  font-size: 1rem;
-  width: 200px;
+  font-size: 1.3rem; /* Увеличен размер шрифта */
+  width: 240px; /* Увеличена ширина */
   transition: all 0.3s ease;
   box-shadow: 0 0 10px #8e44ad;
 }
@@ -133,18 +139,18 @@ body::after {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Медиа-запросы для экранов от 1000px и меньше */
 @media (max-width: 1000px) {
   body {
     padding: 20px 12px;
   }
 
   .container {
-    transform: scale(2);
+    transform: scale(1.05);
     transform-origin: center;
     margin: 0 auto;
-    padding: 50px 30px;
-    margin-left: 200px;
-    margin-top: 65%;
+    padding: 50px 40px; /* Увеличены отступы */
+    margin-left: 15%;
   }
 
   .title {
@@ -152,27 +158,27 @@ body::after {
   }
 
   .category {
-    font-size: 2rem;
-    padding: 28px 32px;
+    font-size: 1.5rem; /* Увеличен размер шрифта */
+    padding: 18px 22px;
   }
 
   .service {
-    font-size: 1.7rem;
-    padding: 24px 30px;
+    font-size: 1.5rem; /* Увеличен размер шрифта */
+    padding: 16px 20px;
   }
 
   .continue {
-    font-size: 5rem;
-    padding: 24px 28px;
+    font-size: 1.7rem; /* Увеличен размер шрифта */
+    padding: 18px 22px;
     width: 80%;
   }
 
   .employee, .date-time {
-    font-size: 1.7rem;
-    padding: 24px 28px;
+    font-size: 1.5rem;
   }
 }
 
+/* Медиа-запросы для экранов 600px и меньше */
 @media screen and (max-width: 600px) {
   body {
     margin: 0;
@@ -184,35 +190,33 @@ body::after {
   }
 
   .container {
-    transform: scale(2.15);
+    transform: scale(1.1);
     transform-origin: center;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 45px 30px; /* Увеличены отступы */
   }
 
-
   .title {
-    font-size: 10rem;
+    font-size: 2.5rem;
   }
 
   .category {
-    font-size: 1.6rem;
-    padding: 26px 30px;
+    font-size: 1.3rem;
+    padding: 18px 22px;
   }
 
   .service {
-    font-size: 1.5rem;
-    padding: 22px 28px;
+    font-size: 1.3rem;
+    padding: 16px 20px;
   }
 
   .continue {
-    font-size: 1.7rem;
-    padding: 22px 26px;
+    font-size: 1.5rem; /* Увеличен размер шрифта */
+    padding: 18px 22px;
     width: 80%;
   }
 
   .employee, .date-time {
-    font-size: 1.5rem;
-    padding: 22px 26px;
+    font-size: 1.3rem;
   }
 }
