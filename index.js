@@ -8,7 +8,7 @@ const app = express();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); // Используется polling вместо webhook
 
 // Удаляем вебхук (чтобы избежать конфликтов с поллингом)
-bot.setWebHook('');
+bot.setWebHook(''); // Убедимся, что вебхук отключен
 
 const users = {};
 const pendingBookings = {};
