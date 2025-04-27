@@ -34,19 +34,28 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Устанавливаем Webhook для Telegram
-bot.setWebHook(`${domain}/botWebhook`)
+// Удаляем старый вебхук перед установкой нового
+bot.removeWebHook()
   .then(() => {
-    console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
+    console.log('🌐 Старый вебхук удален');
+    // Теперь устанавливаем новый вебхук
+    bot.setWebHook(`${domain}/botWebhook`)
+      .then(() => {
+        console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
+      })
+      .catch(error => {
+        console.error('Ошибка при установке Webhook:', error);
+      });
   })
   .catch(error => {
-    console.error('Ошибка при установке Webhook:', error);
+    console.error('Ошибка при удалении старого вебхука:', error);
   });
 
-// Обработка Webhook от Telegram
-app.post(`/botWebhook`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
+// Устанавливаем Webhook для Telegram
+bot.setWebHook(`${domain}/botWebhook`).then(() => {
+  console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
+}).catch(error => {
+  console.error('Ошибка при установке Webhook:', error);
 });
 
 
