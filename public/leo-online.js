@@ -28,6 +28,29 @@ window.goTo = function(section) {
   }
 };
 
+// Загружаем сохраненные данные и показываем на странице
+function renderSavedData() {
+  const service = localStorage.getItem("selectedService") || "Не выбрано";
+  const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
+  const datetime = localStorage.getItem("selectedDatetime") || "Не выбрано";
+
+  const serviceElement = document.getElementById("chosen-service");
+  const staffElement = document.getElementById("chosen-staff");
+  const timeElement = document.getElementById("chosen-time"); // <p> внутри блока времени!
+
+  if (serviceElement) serviceElement.textContent = service;
+  if (staffElement) staffElement.textContent = staff;
+  if (timeElement) {
+    timeElement.textContent = (datetime !== "Не выбрано") ? formatDateTime(datetime) : "Не выбрано";
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("📦 Страница полностью загружена");
+  renderSavedData(); // <-- ВАЖНО
+});
+
+
 
 // Константы
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot"; // <-- твой бот здесь
