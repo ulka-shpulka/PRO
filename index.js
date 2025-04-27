@@ -47,45 +47,53 @@ bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const username = msg.from.username || `user_${msg.from.id}`;
 
+  // Инициализируем пользователя, даже если не найдем для него записи
+  users[chatId] = { username, lastBookingId: null };
+
   let newestBooking = null;
   let newestBookingId = null;
   let newestTimestamp = 0;
 
-  Object.entries(pendingBookings).forEach(([id, booking]) => {
-    // Проверяем, что запись не подтверждена и не отменена
-    if (!booking.confirmed && !booking.cancelled) {
-      const ts = new Date(booking.timestamp || new Date()).getTime();
-      if (ts > newestTimestamp) {
-        newestTimestamp = ts;
-        newestBooking = booking;
-        newestBookingId = id;
-      }
-    }
-  });
-
-  users[chatId] = { username, lastBookingId: newestBookingId };
-
-  if (newestBooking) {
-    // Привязываем chatId к записи
-    newestBooking.chatId = chatId;
-    
-    // Форматируем данные, если они есть
-    const service = newestBooking.service || 'Не указана';
-    const staff = newestBooking.staff || 'Не указан';
-    const date = newestBooking.date || 'Не указана';
-    const time = newestBooking.time || 'Не указано';
-    
-    bot.sendMessage(chatId, `🎉 Ваша запись найдена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "✅ Подтвердить", callback_data: `confirm_${newestBookingId}` }],
-          [{ text: "❌ Отменить", callback_data: `cancel_${newestBookingId}` }]
-        ]
+  // Проверяем, есть ли вообще записи
+  if (Object.keys(pendingBookings).length > 0) {
+    Object.entries(pendingBookings).forEach(([id, booking]) => {
+      // Проверяем, что запись не подтверждена и не отменена
+      if (booking && !booking.confirmed && !booking.cancelled) {
+        const ts = booking.timestamp ? new Date(booking.timestamp).getTime() : 0;
+        if (ts > newestTimestamp) {
+          newestTimestamp = ts;
+          newestBooking = booking;
+          newestBookingId = id;
+        }
       }
     });
-  } else {
-    bot.sendMessage(chatId, `Добро пожаловать в Leo Beauty! ✨\n\nДля записи перейдите на наш сайт.`);
+
+    if (newestBooking) {
+      // Обновляем lastBookingId для пользователя
+      users[chatId].lastBookingId = newestBookingId;
+      
+      // Привязываем chatId к записи
+      newestBooking.chatId = chatId;
+      
+      // Форматируем данные с проверкой на undefined
+      const service = newestBooking.service || 'Не указана';
+      const staff = newestBooking.staff || 'Не указан';
+      const date = newestBooking.date || 'Не указана';
+      const time = newestBooking.time || 'Не указано';
+      
+      return bot.sendMessage(chatId, `🎉 Ваша запись найдена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "✅ Подтвердить", callback_data: `confirm_${newestBookingId}` }],
+            [{ text: "❌ Отменить", callback_data: `cancel_${newestBookingId}` }]
+          ]
+        }
+      });
+    }
   }
+  
+  // Если нет записей или нет подходящей записи, отправляем приветственное сообщение
+  bot.sendMessage(chatId, `Добро пожаловать в Leo Beauty! ✨\n\nДля записи перейдите на наш сайт.`);
 });
 
 // Обработка кнопок
