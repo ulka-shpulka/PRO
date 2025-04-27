@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = localStorage.getItem("telegramUserId");
 
+  console.log("Service:", service);
+  console.log("Staff:", staff);
+  console.log("Datetime:", datetime);
+  console.log("User ID:", userId);
+
   // Обновление текста на странице
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
@@ -12,7 +17,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = document.getElementById("submitBtn");
 
   // Деактивация кнопки, если что-то не выбрано
-  submitBtn.disabled = !(service && staff && datetime && userId);
+  const isFormComplete = service && staff && datetime && userId;
+  submitBtn.disabled = !isFormComplete;
+
+  console.log("Form complete:", isFormComplete);
 
   if (submitBtn.disabled) {
     submitBtn.classList.add("disabled");
@@ -47,6 +55,8 @@ function submitVisit() {
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
   const userId = localStorage.getItem("telegramUserId"); // Получаем userId
+
+  console.log("Submitting Visit with data:", { service, staff, datetime, userId });
 
   if (!service || !staff || !datetime || !userId) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
