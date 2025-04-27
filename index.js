@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 // Загружаем токен и домен из переменных окружения
 const token = process.env.BOT_TOKEN;
 const domain = process.env.DOMAIN;
+const adminChatId = process.env.ADMIN_CHAT_ID;
 
 // Проверка на наличие токена
 if (!token || !domain) {
