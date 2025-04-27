@@ -6,11 +6,24 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 
-// Создаем экземпляр бота с polling
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); 
+// Choose polling OR webhook mode, not both
+let bot;
 
-// Удаляем вебхук, чтобы избежать конфликта с polling
-bot.setWebHook(''); 
+if (process.env.NODE_ENV === 'production') {
+  // Use webhook in production
+  bot = new TelegramBot(process.env.BOT_TOKEN);
+  bot.setWebHook(process.env.WEBHOOK_URL || '');
+} else {
+  // Use polling in development
+  bot = new TelegramBot(process.env.BOT_TOKEN, { polling: {
+    params: {
+      timeout: 10
+    },
+    interval: 2000
+  }});
+  // Make sure to delete any existing webhook
+  bot.deleteWebHook();
+}
 
 // Обработчик пользователей и записи
 const users = {};
@@ -93,9 +106,17 @@ bot.on('callback_query', async (query) => {
 // Эндпоинт для записи
 app.post('/api/pending-booking', (req, res) => {
   const { userId, ...booking } = req.body;
-  pendingBookings[userId] = { ...booking };
+  pendingBookings[userId] = { ...booking, timestamp: new Date().toISOString() };
   res.json({ success: true });
 });
+
+// Webhook endpoint for production mode
+if (process.env.NODE_ENV === 'production') {
+  app.post(`/webhook/${process.env.BOT_TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
+}
 
 // Запуск сервера
 const port = process.env.PORT || 3000;
