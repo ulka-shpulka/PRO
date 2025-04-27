@@ -57,12 +57,18 @@ async function savePendingBooking(bookingData) {
     });
     const data = await response.json();
     console.log('Ответ сервера на сохранение pending booking:', data);
-    return data.success;
+    if (!data.success) {
+      alert("❌ Не удалось сохранить запись. Попробуйте позже.");
+      return false;
+    }
+    return true;
   } catch (error) {
     console.error('Ошибка при сохранении pending booking:', error);
+    alert("❌ Не удалось сохранить запись. Попробуйте позже.");
     return false;
   }
 }
+
 
 function saveData() {
   console.log("💾 Сохраняем выбранные данные в localStorage");

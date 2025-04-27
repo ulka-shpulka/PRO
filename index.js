@@ -44,11 +44,13 @@ app.post('/api/pending-booking', async (req, res) => {
   const { service, staff, date, time, userId } = req.body;
 
   if (!service || !staff || !date || !time || !userId) {
+    console.error('Ошибка: Все поля обязательны', req.body);
     return res.status(400).json({ success: false, error: 'Все поля обязательны' });
   }
 
   // Сохраняем временную запись
   pendingBookings[userId] = { service, staff, date, time };
+  console.log('Запись временно сохранена', pendingBookings[userId]);
 
   return res.json({ success: true, message: 'Запись временно сохранена, переходите в Telegram для подтверждения.' });
 });
@@ -58,12 +60,14 @@ app.post('/api/booking', async (req, res) => {
     const { service, staff, date, time, telegramUsername } = req.body;
 
     if (!service || !staff || !date || !time || !telegramUsername) {
+      console.error('Ошибка: Все поля обязательны для подтверждения записи', req.body);
       return res.status(400).json({ success: false, error: 'Все поля обязательны' });
     }
 
     const userChatId = users[telegramUsername];
 
     if (!userChatId) {
+      console.error('Ошибка: Пользователь не запустил бота в Telegram', telegramUsername);
       return res.status(400).json({ success: false, error: 'Пользователь не запустил бота в Telegram' });
     }
 
@@ -91,7 +95,7 @@ app.post('/api/booking', async (req, res) => {
 
     return res.json({ success: true, message: 'Запись оформлена и подтверждение отправлено' });
   } catch (error) {
-    console.error('Ошибка бронирования:', error);
+    console.error('Ошибка при подтверждении записи:', error);
     return res.status(500).json({ success: false, error: 'Внутренняя ошибка сервера' });
   }
 });
