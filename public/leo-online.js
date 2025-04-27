@@ -2,6 +2,11 @@ console.log("=== ДИАГНОСТИКА ЗАГРУЗКИ СКРИПТА ===");
 console.log("Скрипт leo-online.js загружен");
 console.log("document.readyState:", document.readyState);
 
+// API URL configuration
+const API_BASE_URL = "https://pro-1-qldl.onrender.com/api";
+const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
+
+// Navigation function
 window.goTo = function(section) {
   console.log(`🔀 Переход на страницу: ${section}`);
   
@@ -23,6 +28,28 @@ window.goTo = function(section) {
   }
 };
 
+// Format date and time for display
+function formatDateTime(isoString) {
+  if (!isoString) return "";
+
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) {
+    console.error("❌ Неверный формат ISO строки:", isoString);
+    return "Неверный формат даты";
+  }
+
+  const options = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+
+  return date.toLocaleString('ru-RU', options);
+}
+
+// Render saved data from localStorage to page
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
   const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
@@ -39,28 +66,35 @@ function renderSavedData() {
   }
 }
 
+// Load DOM event listeners
 document.addEventListener('DOMContentLoaded', () => {
   console.log("📦 Страница полностью загружена");
-  renderSavedData(); 
+  renderSavedData();
 });
 
-const TELEGRAM_BOT_URL = "https://t.me/MLfeBot"; // Бот
-
+// Save pending booking to the server
 async function savePendingBooking(bookingData) {
   try {
-    const response = await fetch('https://pro-1-qldl.onrender.com/api/pending-booking', {
+    const response = await fetch(`${API_BASE_URL}/pending-booking`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(bookingData)
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
     const data = await response.json();
     console.log('Ответ сервера на сохранение pending booking:', data);
+    
     if (!data.success) {
-      alert("❌ Не удалось сохранить запись. Попробуйте позже.");
+      alert(`❌ Не удалось сохранить запись: ${data.error || 'Неизвестная ошибка'}`);
       return false;
     }
+    
     return true;
   } catch (error) {
     console.error('Ошибка при сохранении pending booking:', error);
@@ -69,47 +103,18 @@ async function savePendingBooking(bookingData) {
   }
 }
 
-function saveData() {
-  console.log("💾 Сохраняем выбранные данные в localStorage");
-}
-
+// Load saved data from localStorage
 function loadSavedData() {
   console.log("📥 Загружаем сохранённые данные из localStorage");
   return {
     service: localStorage.getItem("selectedService") || null,
     staff: localStorage.getItem("selectedEmployee") || null,
     datetime: localStorage.getItem("selectedDatetime") || null,
-    userId: localStorage.getItem("telegramUserId") || null
+    telegramUsername: localStorage.getItem("telegramUsername") || null
   };
 }
 
-function createTelegramMessage() {
-  const { service, staff, datetime } = loadSavedData();
-  if (!service || !staff || !datetime) {
-    console.error("❌ Не все данные выбраны для формирования сообщения");
-    return null;
-  }
-  
-  const formattedDateTime = formatDateTime(datetime);
-  
-  return `Новая запись!
-Услуга: ${service}
-Специалист: ${staff}
-Дата и время: ${formattedDateTime}
-  `.trim();
-}
-
-function sendToTelegram() {
-  const message = createTelegramMessage();
-  if (!message) {
-    alert("⚠️ Невозможно отправить запись: заполните все поля.");
-    return;
-  }
-  
-  const encodedMessage = encodeURIComponent(message);
-  window.open(`${TELEGRAM_BOT_URL}?start=${encodedMessage}`, '_blank');
-}
-
+// Selection functions
 function selectService(serviceName) {
   console.log("Выбрана услуга:", serviceName);
   localStorage.setItem("selectedService", serviceName);
@@ -137,62 +142,67 @@ function selectDateTime(datetime) {
   goTo('leo-online');
 }
 
+// Prepare booking data for submission
 function prepareBookingData() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
-  const userId = localStorage.getItem("telegramUserId");
-
-  if (!service || !staff || !datetime || !userId) {
-    console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime, userId });
-    return null;
-  }
-
-  const [date, time] = datetime.split('T');
   
-  // Дополнительная проверка на формат даты и времени
-  if (!date || !time) {
-    console.error("❌ Неверный формат даты и времени:", datetime);
+  // Get telegramUsername if it was saved previously, or prompt for it
+  let telegramUsername = localStorage.getItem("telegramUsername");
+  
+  if (!service || !staff || !datetime) {
+    console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime });
     return null;
   }
 
-  return { service, staff, date, time, userId };
-}
+  try {
+    const [date, time] = datetime.split('T');
+    
+    // Дополнительная проверка на формат даты и времени
+    if (!date || !time) {
+      console.error("❌ Неверный формат даты и времени:", datetime);
+      return null;
+    }
 
-function formatDateTime(isoString) {
-  if (!isoString) return "";
-
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) {
-    console.error("❌ Неверный формат ISO строки:", isoString);
-    return "Неверный формат даты";
+    return { 
+      service, 
+      staff, 
+      date, 
+      time, 
+      telegramUsername 
+    };
+  } catch (error) {
+    console.error("❌ Ошибка при подготовке данных записи:", error);
+    return null;
   }
-
-  const options = {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  };
-
-  return date.toLocaleString('ru-RU', options);
 }
 
-function checkDOMElements() {
-  return {
-    serviceElement: document.getElementById("selectedService"),
-    staffElement: document.getElementById("selectedEmployee"),
-    timeElement: document.getElementById("selectedDatetime")
-  };
-}
-
+// Handle the submission process
 window.submitVisit = async function() {
   console.log("=== НАЧАЛО ВЫПОЛНЕНИЯ submitVisit() ===");
   
+  // Check if all required data is selected
+  const { service, staff, datetime } = loadSavedData();
+  if (!service || !staff || !datetime) {
+    alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
+    return;
+  }
+  
+  // Ask for Telegram username
+  let telegramUsername = prompt("Введите ваш username в Telegram (без @):");
+  if (!telegramUsername) {
+    alert("Для подтверждения записи необходим ваш username в Telegram.");
+    return;
+  }
+  
+  // Save username to localStorage
+  localStorage.setItem("telegramUsername", telegramUsername);
+  
+  // Prepare booking data with updated username
   const bookingData = prepareBookingData();
   if (!bookingData) {
-    alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
+    alert("Не удалось подготовить данные записи. Проверьте все поля.");
     return;
   }
 
@@ -205,12 +215,18 @@ window.submitVisit = async function() {
     return;
   }
 
+  // Save pending booking to server
   const success = await savePendingBooking(bookingData);
 
   if (success) {
     console.log("✅ Pending booking успешно сохранено. Переход к боту...");
+    
+    // Open Telegram bot in new tab
     window.open(`${TELEGRAM_BOT_URL}`, '_blank');
-  } else {
-    alert("❌ Не удалось сохранить запись. Попробуйте позже.");
+    
+    // Show follow-up instructions
+    setTimeout(() => {
+      alert("После подписки на бота, напишите ему команду /start чтобы получить подтверждение записи.");
+    }, 500);
   }
 };
