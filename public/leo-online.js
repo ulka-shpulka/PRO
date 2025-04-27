@@ -1,15 +1,10 @@
-// === leo-online.js (обновлённая версия) ===
-
-// Немедленно запускаем диагностику при загрузке скрипта
 console.log("=== ДИАГНОСТИКА ЗАГРУЗКИ СКРИПТА ===");
 console.log("Скрипт leo-online.js загружен");
 console.log("document.readyState:", document.readyState);
 
-
 window.goTo = function(section) {
   console.log(`🔀 Переход на страницу: ${section}`);
   
-  // Тут можно настроить переход куда угодно
   switch (section) {
     case 'services':
       window.location.href = "services.html";
@@ -28,7 +23,6 @@ window.goTo = function(section) {
   }
 };
 
-// Загружаем сохраненные данные и показываем на странице
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
   const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
@@ -36,7 +30,7 @@ function renderSavedData() {
 
   const serviceElement = document.getElementById("chosen-service");
   const staffElement = document.getElementById("chosen-staff");
-  const timeElement = document.getElementById("chosen-time"); // <p> внутри блока времени!
+  const timeElement = document.getElementById("chosen-time");
 
   if (serviceElement) serviceElement.textContent = service;
   if (staffElement) staffElement.textContent = staff;
@@ -47,21 +41,33 @@ function renderSavedData() {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("📦 Страница полностью загружена");
-  renderSavedData(); // <-- ВАЖНО
+  renderSavedData(); 
 });
 
+const TELEGRAM_BOT_URL = "https://t.me/MLfeBot"; // Бот
 
-
-// Константы
-const TELEGRAM_BOT_URL = "https://t.me/MLfeBot"; // <-- твой бот здесь
-
-// Сохранение данных
-function saveData() {
-  console.log("💾 Сохраняем выбранные данные в localStorage");
-  // Ничего не делаем напрямую - сохраняем в select* функциях
+async function savePendingBooking(bookingData) {
+  try {
+    const response = await fetch('https://pro-1-qldl.onrender.com/api/pending-booking', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bookingData)
+    });
+    const data = await response.json();
+    console.log('Ответ сервера на сохранение pending booking:', data);
+    return data.success;
+  } catch (error) {
+    console.error('Ошибка при сохранении pending booking:', error);
+    return false;
+  }
 }
 
-// Загрузка данных
+function saveData() {
+  console.log("💾 Сохраняем выбранные данные в localStorage");
+}
+
 function loadSavedData() {
   console.log("📥 Загружаем сохранённые данные из localStorage");
   return {
@@ -72,7 +78,6 @@ function loadSavedData() {
   };
 }
 
-// Формирование сообщения для Telegram
 function createTelegramMessage() {
   const { service, staff, datetime } = loadSavedData();
   if (!service || !staff || !datetime) {
@@ -90,7 +95,6 @@ function createTelegramMessage() {
   `.trim();
 }
 
-// Перенаправление в Telegram с сообщением
 function sendToTelegram() {
   const message = createTelegramMessage();
   if (!message) {
@@ -102,7 +106,6 @@ function sendToTelegram() {
   window.open(`${TELEGRAM_BOT_URL}?start=${encodedMessage}`, '_blank');
 }
 
-// Функции выбора
 function selectService(serviceName) {
   console.log("Выбрана услуга:", serviceName);
   localStorage.setItem("selectedService", serviceName);
@@ -121,11 +124,6 @@ function selectDateTime(datetime) {
   goTo('leo-online');
 }
 
-// Функция получения Telegram user ID
-function getTelegramUserId() {
-  return localStorage.getItem('telegramUserId');
-}
-
 function prepareBookingData() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
@@ -137,7 +135,7 @@ function prepareBookingData() {
     return null;
   }
 
-  const [date, time] = datetime.split('T'); // Разбиваем на дату и время
+  const [date, time] = datetime.split('T');
 
   return { service, staff, date, time, userId };
 }
@@ -157,7 +155,6 @@ function formatDateTime(isoString) {
   return date.toLocaleString('ru-RU', options);
 }
 
-
 function checkDOMElements() {
   return {
     serviceElement: document.getElementById("selectedService"),
@@ -166,102 +163,30 @@ function checkDOMElements() {
   };
 }
 
-
-
-// Главная функция обработки записи
-window.submitVisit = function() {
+window.submitVisit = async function() {
   console.log("=== НАЧАЛО ВЫПОЛНЕНИЯ submitVisit() ===");
-  
-  const submitBtn = document.getElementById("submitBtn");
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.classList.add("disabled");
-    console.log("Кнопка заблокирована");
-  }
   
   const bookingData = prepareBookingData();
   if (!bookingData) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove("disabled");
-    }
     return;
   }
-  
-  console.log("Данные для записи готовы:", bookingData);
 
   const confirmed = confirm(
     "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
   );
-  
+
   if (!confirmed) {
     console.log("Пользователь отменил запись");
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove("disabled");
-    }
     return;
   }
-  
-  if (submitBtn) {
-    submitBtn.textContent = "Отправка...";
+
+  const success = await savePendingBooking(bookingData);
+
+  if (success) {
+    console.log("✅ Pending booking успешно сохранено. Переход к боту...");
+    window.open(`${TELEGRAM_BOT_URL}`, '_blank');
+  } else {
+    alert("❌ Не удалось сохранить запись. Попробуйте позже.");
   }
-  
-  console.log("Отправка данных...");
-  
-  sendBookingData(
-    bookingData.service,
-    bookingData.staff,
-    bookingData.date,
-    bookingData.time,
-    bookingData.userId
-  )
-  .then(response => {
-    console.log("✅ Успешный ответ:", response);
-    if (response.success) {
-      alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
-    } else {
-      throw new Error(response.error || "Неизвестная ошибка сервера");
-    }
-  })
-  .catch(error => {
-    console.error("❌ Ошибка при записи:", error);
-    alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
-  })
-  .finally(() => {
-    console.log("Финальная обработка...");
-    
-    // Открываем Telegram
-    sendToTelegram();
-
-    // Очищаем localStorage
-    localStorage.clear();
-    
-    // Обновляем интерфейс
-    const elements = checkDOMElements();
-    if (elements.serviceElement) elements.serviceElement.textContent = "Не выбрано";
-    if (elements.staffElement) elements.staffElement.textContent = "Не выбрано";
-    if (elements.timeElement) elements.timeElement.textContent = "Не выбрано";
-    
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.classList.add("disabled");
-      submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
-    }
-    
-    console.log("Подготовка перехода на leo.html через 2 секунды");
-    setTimeout(() => {
-      console.log("Переход на leo.html");
-      window.location.href = "leo.html";
-    }, 2000);
-  });
-  
-  console.log("=== КОНЕЦ ВЫПОЛНЕНИЯ submitVisit() ===");
 };
-
-// Остальная часть твоего кода с DOMContentLoaded, делегированием клика и финальными логами
-// ... (она остаётся без изменений)
-
-console.log("=== СКРИПТ ПОЛНОСТЬЮ ЗАГРУЖЕН ===");
-console.log("Для ручного запуска записи используйте: window.submitVisit()");

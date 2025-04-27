@@ -24,12 +24,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static('public'));
 
-// Для хранения пользователей в памяти (для упрощённого варианта)
+// Для хранения пользователей и временных записей
 const users = {}; // { telegramUsername: chatId }
+const pendingBookings = {}; // { telegramUsername: {service, staff, date, time} }
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  const username = msg.from.username; // @username без @
+  const username = msg.from.username;
 
   if (username) {
     users[username] = chatId;
@@ -37,6 +38,19 @@ bot.onText(/\/start/, (msg) => {
   }
 
   bot.sendMessage(chatId, `Добро пожаловать в Leo Beauty! ✨\n\nДля записи на услуги используйте наш сайт.`);
+});
+
+app.post('/api/pending-booking', async (req, res) => {
+  const { service, staff, date, time, userId } = req.body;
+
+  if (!service || !staff || !date || !time || !userId) {
+    return res.status(400).json({ success: false, error: 'Все поля обязательны' });
+  }
+
+  // Сохраняем временную запись
+  pendingBookings[userId] = { service, staff, date, time };
+
+  return res.json({ success: true, message: 'Запись временно сохранена, переходите в Telegram для подтверждения.' });
 });
 
 app.post('/api/booking', async (req, res) => {
@@ -53,9 +67,8 @@ app.post('/api/booking', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Пользователь не запустил бота в Telegram' });
     }
 
-    // Админу сообщение
     const adminMessage = `
-🆕 Новая запись!\n
+🆕 Новая запись!
 Услуга: ${service}
 Специалист: ${staff}
 Дата: ${date}
@@ -64,7 +77,6 @@ app.post('/api/booking', async (req, res) => {
     `;
     await bot.sendMessage(adminChatId, adminMessage);
 
-    // Клиенту сообщение
     const userMessage = `
 ✅ Ваш визит в Leo Beauty подтверждён!
 
