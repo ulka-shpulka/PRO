@@ -1,123 +1,125 @@
-// leo-online.js - скрипт для страницы онлайн-записи
+// index.js - основной файл сервера
 
-document.addEventListener("DOMContentLoaded", function () {
-  const service = localStorage.getItem("selectedService");
-  const staff = localStorage.getItem("selectedEmployee");
-  const datetime = localStorage.getItem("selectedDatetime");
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const TelegramBot = require('node-telegram-bot-api');
+const mongoose = require('mongoose');
+const path = require('path');
 
-  document.getElementById("chosen-service").textContent = service || "Не выбрано";
-  document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
-  document.getElementById("chosen-time").textContent = datetime ? formatDateTime(datetime) : "Не выбрано";
+// Загрузка переменных окружения
+const token = process.env.BOT_TOKEN;
+const adminChatId = process.env.ADMIN_CHAT_ID;
+const domain = process.env.DOMAIN;
+const port = process.env.PORT || 3000;
 
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = !(service && staff && datetime);
+// Проверка наличия обязательных переменных окружения
+if (!token || token === 'your-bot-token-here') {
+  console.error('Ошибка: BOT_TOKEN не указан или имеет значение по умолчанию');
+  process.exit(1);
+}
+
+if (!adminChatId || adminChatId === 'your-admin-chat-id-here') {
+  console.error('Ошибка: ADMIN_CHAT_ID не указан или имеет значение по умолчанию');
+  process.exit(1);
+}
+
+// Инициализация бота
+const bot = new TelegramBot(token, { polling: true });
+
+// Инициализация Express
+const app = express();
+
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
+app.use(express.static('public'));
+
+// Простая авторизация для API запросов
+const apiAuth = (req, res, next) => {
+  // Здесь можно реализовать более серьезную авторизацию
+  // Для демонстрации используем упрощенный вариант
+  const token = req.headers.authorization?.split(' ')[1];
   
-  if (submitBtn.disabled) {
-    submitBtn.classList.add("disabled");
-  } else {
-    submitBtn.classList.remove("disabled");
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'Токен не предоставлен' });
+  }
+  
+  // В реальном приложении здесь была бы проверка токена
+  // Для примера пропускаем любой токен
+  next();
+};
+
+// Маршруты API
+app.post('/api/booking', apiAuth, async (req, res) => {
+  try {
+    const { service, staff, date, time } = req.body;
+    
+    if (!service || !staff || !date || !time) {
+      return res.status(400).json({ success: false, error: 'Все поля обязательны' });
+    }
+    
+    // Отправка уведомления админу в Telegram
+    const message = `
+🆕 Новая запись!\n
+Услуга: ${service}
+Специалист: ${staff}
+Дата: ${date}
+Время: ${time}
+    `;
+    
+    await bot.sendMessage(adminChatId, message);
+    
+    // Можно добавить сохранение в БД, если нужно
+    
+    return res.json({ success: true, message: 'Запись успешно создана' });
+  } catch (error) {
+    console.error('Ошибка при обработке бронирования:', error);
+    return res.status(500).json({ success: false, error: 'Внутренняя ошибка сервера' });
   }
 });
 
-function formatDateTime(datetimeStr) {
-  const dt = new Date(datetimeStr);
-  const day = dt.getDate().toString().padStart(2, '0');
-  const month = (dt.getMonth() + 1).toString().padStart(2, '0');
-  const year = dt.getFullYear();
-  const hours = dt.getHours().toString().padStart(2, '0');
-  const minutes = dt.getMinutes().toString().padStart(2, '0');
-  return `${day}.${month}.${year} в ${hours}:${minutes}`;
-}
+// Обработчики команд Telegram-бота
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, `
+Добро пожаловать в Leo Beauty!
 
-function goTo(page) {
-  if (page === 'services') {
-    localStorage.removeItem("selectedEmployee");
-    localStorage.removeItem("selectedDatetime");
-  }
-  if (page === 'staff') {
-    localStorage.removeItem("selectedDatetime");
-  }
-  window.location.href = `${page}.html`;
-}
+Мы рады приветствовать Вас в нашем салоне красоты.
+Здесь Вы можете получать уведомления о своих записях и акциях.
 
-function submitVisit() {
-  const service = localStorage.getItem("selectedService");
-  const staff = localStorage.getItem("selectedEmployee");
-  const datetime = localStorage.getItem("selectedDatetime");
-
-  if (!service || !staff || !datetime) {
-    alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
-    return;
-  }
-
-  const confirmed = confirm(
-    "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
-  );
+Для записи на услуги, пожалуйста, воспользуйтесь нашим сайтом.
+  `);
   
-  if (!confirmed) return;
+  // Отправляем ID чата в консоль, чтобы администратор мог его использовать
+  console.log(`Новый пользователь бота. Chat ID: ${chatId}`);
+});
 
-  const submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
-  submitBtn.classList.add("disabled");
-  submitBtn.textContent = "Отправка...";
+// Маршрут для проверки работоспособности сервера
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
 
-  const [date, time] = datetime.split("T");
+// Обработка несуществующих маршрутов API
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, error: 'API endpoint not found' });
+});
 
-  sendBookingData(service, staff, date, time)
-    .then((response) => {
-      if (response.success) {
-        alert("✅ Запись успешно оформлена! Информация отправлена в Telegram.");
-      } else {
-        throw new Error(response.error || "Неизвестная ошибка");
-      }
-    })
-    .catch((error) => {
-      console.error("Ошибка при оформлении записи:", error);
-      alert("⚠️ Произошла ошибка при оформлении записи. Попробуйте позже или свяжитесь с нами через Telegram.");
-    })
-    .finally(() => {
-      window.open("https://t.me/MLfeBot", "_blank");
-      localStorage.clear();
-      document.getElementById("chosen-service").textContent = "Не выбрано";
-      document.getElementById("chosen-staff").textContent = "Не выбрано";
-      document.getElementById("chosen-time").textContent = "Не выбрано";
-      submitBtn.disabled = true;
-      submitBtn.classList.add("disabled");
-      submitBtn.textContent = "ОФОРМИТЬ ВИЗИТ";
+// Обработка всех остальных запросов - отдаем index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
-      setTimeout(() => {
-        window.location.href = "leo.html";
-      }, 2000);
-    });
-}
+// Запуск сервера
+app.listen(port, () => {
+  console.log(`Сервер запущен на порту ${port}`);
+  console.log(`Домен: ${domain}`);
+});
 
-function sendBookingData(service, staff, date, time) {
-  const apiUrl = "https://pro-1-qldl.onrender.com/api/booking";
-  return fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ service, staff, date, time }),
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error(`Ошибка HTTP: ${response.status}`);
-    }
-    return response.json();
-  });
-}
-
-function selectService(serviceName) {
-  localStorage.setItem("selectedService", serviceName);
-  goTo('staff');
-}
-
-function selectStaff(staffName) {
-  localStorage.setItem("selectedEmployee", staffName);
-  goTo('datetime');
-}
-
-function selectDateTime(datetime) {
-  localStorage.setItem("selectedDatetime", datetime);
-  goTo('leo-online');
-}
+// Запуск бота
+console.log('Telegram бот запущен');
+bot.on('polling_error', (error) => {
+  console.error('Ошибка в работе Telegram бота:', error);
+});

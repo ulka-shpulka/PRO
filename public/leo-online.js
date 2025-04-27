@@ -1,8 +1,23 @@
+// Проверяем наличие токена при загрузке страницы
+document.addEventListener("DOMContentLoaded", function () {
+  // Генерация простого клиентского токена если он еще не существует
+  if (!localStorage.getItem("clientToken")) {
+    const randomToken = Math.random().toString(36).substring(2, 15) + 
+                        Math.random().toString(36).substring(2, 15);
+    localStorage.setItem("clientToken", randomToken);
+  }
+  
+  // Остальной код DOMContentLoaded...
+});
+
+// Общий скрипт для системы онлайн-записи
+
 document.addEventListener("DOMContentLoaded", function () {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
 
+  // Обновление интерфейса выбранными данными
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
   document.getElementById("chosen-time").textContent = datetime ? formatDateTime(datetime) : "Не выбрано";
@@ -94,6 +109,7 @@ async function sendBookingData(service, staff, date, time) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("clientToken") // Добавлено для авторизации
       },
       body: JSON.stringify({ service, staff, date, time }),
     });
