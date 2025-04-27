@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,23 +35,38 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Устанавливаем Webhook для Telegram
-bot.setWebHook(`${domain}/botWebhook`)
-  .then(() => {
-    console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
-  })
-  .catch(error => {
-    console.error('Ошибка при установке Webhook:', error);
-  });
+// Функция для удаления старого вебхука
+const removeWebhook = async () => {
+  try {
+    const url = `https://api.telegram.org/bot${token}/deleteWebHook`;
+    const response = await axios.get(url);
+    if (response.data.ok) {
+      console.log('🌐 Старый вебхук удален');
+    } else {
+      console.log('❌ Ошибка при удалении старого вебхука');
+    }
+  } catch (error) {
+    console.error('Ошибка при удалении старого вебхука:', error);
+  }
+};
+
+// Удаляем старый вебхук перед установкой нового
+removeWebhook().then(() => {
+  bot.setWebHook(`${domain}/botWebhook`)
+    .then(() => {
+      console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
+    })
+    .catch(error => {
+      console.error('Ошибка при установке Webhook:', error);
+    });
+});
 
 // Обработка Webhook от Telegram
 app.post(`/botWebhook`, (req, res) => {
+  console.log('Received update:', req.body); // Логирование полученных данных
   bot.processUpdate(req.body);
   res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
 });
-
-
-
 
 // Обработка записи с сайта
 app.post('/book', (req, res) => {
@@ -60,7 +76,7 @@ app.post('/book', (req, res) => {
     return res.status(400).json({ success: false, error: 'Отсутствуют обязательные поля' });
   }
 
-  const message = `
+  const message = `  
 💇 *Новая запись*
 
 🔹 Услуга: ${service}
@@ -141,7 +157,6 @@ bot.on('message', (msg) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
 });
-
 
 console.log('BOT_TOKEN:', process.env.BOT_TOKEN);
 console.log('DOMAIN:', process.env.DOMAIN);
