@@ -5,7 +5,10 @@ const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); // Добавлен polling вместо webhook
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); // Используется polling вместо webhook
+
+// Удаляем вебхук (чтобы избежать конфликтов с поллингом)
+bot.setWebHook('');
 
 const users = {};
 const pendingBookings = {};
