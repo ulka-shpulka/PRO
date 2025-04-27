@@ -5,11 +5,14 @@ const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); // Используется polling вместо webhook
 
-// Удаляем вебхук (чтобы избежать конфликтов с поллингом)
-bot.setWebHook(''); // Убедимся, что вебхук отключен
+// Создаем экземпляр бота с polling
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true }); 
 
+// Удаляем вебхук, чтобы избежать конфликта с polling
+bot.setWebHook(''); 
+
+// Обработчик пользователей и записи
 const users = {};
 const pendingBookings = {};
 
@@ -17,7 +20,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static('public'));
 
-// Получение последней записи
+// Получение последней записи для пользователя
 function getLastBookingForUser(chatId) {
   const user = users[chatId];
   if (!user || !user.lastBookingId) return null;
