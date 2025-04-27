@@ -3,13 +3,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
 
+  // Обновление текста на странице
   document.getElementById("chosen-service").textContent = service || "Не выбрано";
   document.getElementById("chosen-staff").textContent = staff || "Не выбрано";
   document.getElementById("chosen-time").textContent = datetime ? formatDateTime(datetime) : "Не выбрано";
 
   const submitBtn = document.getElementById("submitBtn");
+
+  // Деактивация кнопки, если что-то не выбрано
   submitBtn.disabled = !(service && staff && datetime);
-  
+
   if (submitBtn.disabled) {
     submitBtn.classList.add("disabled");
   } else {
@@ -27,11 +30,22 @@ function formatDateTime(datetimeStr) {
   return `${day}.${month}.${year} в ${hours}:${minutes}`;
 }
 
+function goTo(page) {
+  if (page === 'services') {
+    localStorage.removeItem("selectedEmployee");
+    localStorage.removeItem("selectedDatetime");
+  }
+  if (page === 'staff') {
+    localStorage.removeItem("selectedDatetime");
+  }
+  window.location.href = `${page}.html`;
+}
+
 function submitVisit() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
-  const userId = getTelegramUserId(); // Получаем userId, это может быть ID пользователя Telegram, полученный при старте
+  const userId = getTelegramUserId(); // Получаем userId, который сохраняется после старта бота
 
   if (!service || !staff || !datetime || !userId) {
     alert("Пожалуйста, выберите услугу, сотрудника и время перед оформлением записи.");
@@ -95,8 +109,24 @@ function sendBookingData(service, staff, date, time, userId) {
   });
 }
 
-// Предположим, что у вас есть функция для получения userId
+// Функция получения userId из localStorage (или с другого места, в зависимости от реализации)
 function getTelegramUserId() {
-  // В реальном приложении нужно хранить этот ID после старта бота
-  return localStorage.getItem('telegramUserId'); // Например, сохраняем его в localStorage
+  // Здесь предполагаем, что userId сохраняется в localStorage
+  return localStorage.getItem('telegramUserId'); // Считываем из localStorage
+}
+
+// Селекторы для кнопок
+function selectService(serviceName) {
+  localStorage.setItem("selectedService", serviceName);
+  goTo('staff');
+}
+
+function selectStaff(staffName) {
+  localStorage.setItem("selectedEmployee", staffName);
+  goTo('datetime');
+}
+
+function selectDateTime(datetime) {
+  localStorage.setItem("selectedDatetime", datetime);
+  goTo('leo-online');
 }
