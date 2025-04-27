@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Онлайн-запись</title>
   <link rel="stylesheet" href="leo-online.css" />
+  <style>
+    
+  </style>
 </head>
 <body>
   <div class="container">
@@ -22,11 +25,11 @@
 
     <div class="selection" onclick="goTo('datetime')">
       <div class="label">Дата и время</div>
-      <div class="chosen" id="chosen-datetime"><p id="chosen-time">Не выбрано</p></div>
+      <div class="chosen" id="chosen-time">Не выбрано</div>
       <span class="arrow">➤</span>
     </div>
     
-    <button id="submitBtn" onclick="submitVisit()">ОФОРМИТЬ ВИЗИТ</button>
+    <button id="submitBtn" onclick="submitVisit()" class="disabled" disabled>ОФОРМИТЬ ВИЗИТ</button>
     <a href="leo.html" class="back-link">← Назад</a>
   </div>
 
