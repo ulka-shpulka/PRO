@@ -1,167 +1,172 @@
-// index.js - основной файл сервера для Telegram-бота
-require('dotenv').config(); // подключаем .env
+// index.js
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
+const mongoose = require('mongoose');
 const TelegramBot = require('node-telegram-bot-api');
-const path = require('path');
 const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(bodyParser.json());
 
-// Загружаем токен и домен из переменных окружения
-const token = process.env.BOT_TOKEN;  // Используем переменную BOT_TOKEN
-const domain = process.env.DOMAIN;    // Используем переменную DOMAIN
-const adminChatId = process.env.ADMIN_CHAT_ID; // Используем ADMIN_CHAT_ID
-const port = process.env.PORT || 3000;  // Используем PORT
+const BOT_TOKEN = '7492776215:AAFBnBmCvf_LL1QlW7zOXO19piWCRvWNb3k';
+const SERVER_URL = 'https://pro-1-qldl.onrender.com';
 
-// Проверка на наличие токена и домена
-if (!token || !domain || !adminChatId) {
-  console.error('❌ BOT_TOKEN, DOMAIN и ADMIN_CHAT_ID должны быть установлены в .env файле');
-  process.exit(1);
+const bot = new TelegramBot(BOT_TOKEN, { webHook: { port: process.env.PORT || 3000 } });
+
+mongoose.connect('mongodb://localhost:27017/beauty_salon', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+const BookingSchema = new mongoose.Schema({
+  userId: { type: Number, required: true },
+  userName: { type: String },
+  service: { type: String, required: true },
+  staff: { type: String, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
+  salon: { type: String, default: 'Салон 1' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const Booking = mongoose.model('Booking', BookingSchema);
+
+const CHANNEL_ID = '@MLfeBot';
+const ADMIN_USERNAME = '@sae_bun';
+
+async function checkSubscription(userId) {
+  try {
+    const response = await axios.get(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember`, {
+      params: { chat_id: CHANNEL_ID, user_id: userId }
+    });
+    const status = response.data.result.status;
+    return ['member', 'administrator', 'creator'].includes(status);
+  } catch (error) {
+    console.error('Ошибка при проверке подписки:', error);
+    return false;
+  }
 }
 
-const bot = new TelegramBot(token, { webHook: true });
-
-// Middleware
-app.use(bodyParser.json());
-app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Отдаём index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Функция для удаления старого вебхука
-const removeWebhook = async () => {
-  try {
-    const url = `https://api.telegram.org/bot${token}/deleteWebHook`;
-    const response = await axios.get(url);
-    if (response.data.ok) {
-      console.log('🌐 Старый вебхук удален');
-    } else {
-      console.log('❌ Ошибка при удалении старого вебхука');
-    }
-  } catch (error) {
-    console.error('Ошибка при удалении старого вебхука:', error);
-  }
-};
-
-// Удаляем старый вебхук перед установкой нового
-removeWebhook().then(() => {
-  bot.setWebHook(`${domain}/botWebhook`)
-    .then(() => {
-      console.log(`🌐 Webhook установлен по адресу: ${domain}/botWebhook`);
-    })
-    .catch(error => {
-      console.error('Ошибка при установке Webhook:', error);
-    });
-});
-
-// Обработка Webhook от Telegram
-app.post(`/botWebhook`, (req, res) => {
-  console.log('Received POST request to /botWebhook');
-  console.log('Request body:', req.body); // Логирование полученных данных запроса
-  bot.processUpdate(req.body); // Обработка обновлений от Telegram
-  res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
-});
-
-// Обработка записи с сайта
-app.post('/book', (req, res) => {
-  console.log('Received POST request to /book');
-  console.log('Request body:', req.body); // Логирование полученных данных запроса
-  
-  const { service, staff, date, time } = req.body;
-
-  if (!service || !staff || !date || !time) {
-    return res.status(400).json({ success: false, error: 'Отсутствуют обязательные поля' });
-  }
-
-  const message = `  
-💇 *Новая запись*
-
-🔹 Услуга: ${service}
-👩‍🦰 Сотрудник: ${staff}
-📅 Дата: ${date}
-⏰ Время: ${time}
-  `;
-
-  bot.sendMessage(adminChatId, message, { parse_mode: 'Markdown' })
-    .then(() => res.status(200).json({ success: true, message: 'Запись успешно оформлена!' }))
-    .catch(error => {
-      console.error('Ошибка при отправке сообщения:', error);
-      res.status(500).json({ success: false, error: 'Ошибка при отправке уведомления' });
-    });
-});
-
-// === Обработчики Telegram ===
-
-// Приветствие
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  const firstName = msg.from.first_name || '';
-
-  bot.sendMessage(chatId, `
-Привет, ${firstName}! 👋
-
-Добро пожаловать в бот нашего салона.
-Здесь Вы можете:
-• Отслеживать свои записи
-• Узнать информацию о салоне
-• Связаться с администратором
-
-Спасибо, что выбрали нас!
-  `, {
+function getMainKeyboard() {
+  return {
     reply_markup: {
-      keyboard: [
-        ['💇‍♀️ Мои записи'],
-        ['ℹ️ Информация о салоне'],
-        ['📞 Связаться с нами']
-      ],
-      resize_keyboard: true
+      inline_keyboard: [
+        [{ text: '📝 Мои записи', callback_data: 'my_records' }],
+        [{ text: '🏢 Салоны', callback_data: 'salons' }],
+        [{ text: '🆘 Помощь', callback_data: 'help' }]
+      ]
     }
-  });
+  };
+}
+
+bot.setWebHook(`${SERVER_URL}/botWebhook`);
+
+app.post('/botWebhook', (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
 });
 
-// Обработка кнопок
-const handlers = {
-  '💇‍♀️ Мои записи': 'В настоящее время у вас нет активных записей. Чтобы записаться, посетите наш сайт.',
-  'ℹ️ Информация о салоне': `
-*О нашем салоне*
-
-🏠 Адрес: [Ваш адрес]
-⏰ График работы: Пн-Вс с 10:00 до 20:00
-📞 Телефон: [Ваш телефон]
-🌐 Сайт: [Ваш сайт]
-  `,
-  '📞 Связаться с нами': 'Напишите ваш вопрос, и администратор ответит вам в ближайшее время.'
-};
-
-// Обработка входящих сообщений
-bot.on('message', (msg) => {
+bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  const text = msg.text;
+  const userId = msg.from.id;
+  const firstName = msg.from.first_name || 'Клиент';
 
-  if (handlers[text]) {
-    bot.sendMessage(chatId, handlers[text], { parse_mode: 'Markdown' });
-  } else if (text && !text.startsWith('/')) {
-    const userName = msg.from.username ? `@${msg.from.username}` : 'Неизвестный пользователь';
-    const userInfo = `Сообщение от ${userName} (${msg.from.first_name} ${msg.from.last_name || ''}):\n\n${text}`;
+  await bot.sendMessage(chatId, `Здравствуйте, ${firstName}! Для доступа к системе записи, подпишитесь на наш канал ${CHANNEL_ID}`);
 
-    bot.sendMessage(adminChatId, userInfo)
-      .then(() => bot.sendMessage(chatId, 'Спасибо за сообщение! Мы ответим вам в ближайшее время.'))
-      .catch(error => console.error('Ошибка при пересылке сообщения:', error));
+  const isSubscribed = await checkSubscription(userId);
+
+  if (isSubscribed) {
+    await bot.sendMessage(chatId, `Спасибо за подписку! Теперь вы можете использовать все функции бота.`, getMainKeyboard());
+  } else {
+    await bot.sendMessage(chatId, `Пожалуйста, подпишитесь на канал ${CHANNEL_ID}, чтобы продолжить!`);
   }
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-  console.log(`🚀 Сервер запущен на порту ${PORT}`);
+bot.on('callback_query', async (query) => {
+  const chatId = query.message.chat.id;
+  const userId = query.from.id;
+  const messageId = query.message.message_id;
+  const data = query.data;
+
+  await bot.answerCallbackQuery(query.id);
+
+  const isSubscribed = await checkSubscription(userId);
+  if (!isSubscribed) {
+    await bot.sendMessage(chatId, `Для использования бота необходимо подписаться на наш канал ${CHANNEL_ID}`);
+    return;
+  }
+
+  switch (data) {
+    case 'my_records':
+      await showUserBookings(chatId, userId);
+      break;
+    case 'salons':
+      await showSalons(chatId);
+      break;
+    case 'help':
+      await bot.sendMessage(chatId, `По всем вопросам обращайтесь к администратору: ${ADMIN_USERNAME}`, getMainKeyboard());
+      break;
+    default:
+      await bot.sendMessage(chatId, 'Выберите действие:', getMainKeyboard());
+  }
 });
 
-console.log('BOT_TOKEN:', process.env.BOT_TOKEN);
-console.log('DOMAIN:', process.env.DOMAIN);
-console.log('ADMIN_CHAT_ID:', process.env.ADMIN_CHAT_ID)
+async function showUserBookings(chatId, userId) {
+  const bookings = await Booking.find({ userId }).sort({ date: 1, time: 1 });
+  if (bookings.length === 0) {
+    return bot.sendMessage(chatId, 'У вас пока нет ни одной записи.', getMainKeyboard());
+  }
+
+  let message = '📋 *Ваши записи:*\n\n';
+  bookings.forEach((booking, index) => {
+    message += `*${index + 1}.* ${booking.service}\n🧑‍💼 ${booking.staff}\n📅 ${booking.date} в ${booking.time}\n🏢 ${booking.salon}\n\n`;
+  });
+
+  await bot.sendMessage(chatId, message, { parse_mode: 'Markdown', ...getMainKeyboard() });
+}
+
+async function showSalons(chatId) {
+  const salons = [
+    { name: 'Салон 1', address: 'ул. Пушкина, 10' },
+    { name: 'Салон 2', address: 'ул. Лермонтова, 15' },
+    { name: 'Салон 3', address: 'ул. Гоголя, 20' },
+    { name: 'Салон 4', address: 'ул. Толстого, 25' }
+  ];
+
+  const salonKeyboard = {
+    reply_markup: {
+      inline_keyboard: salons.map((salon, idx) => [{
+        text: salon.name,
+        callback_data: `salon_${idx}`
+      }]).concat([[{ text: '◀️ Назад', callback_data: 'back_to_main' }]])
+    }
+  };
+
+  await bot.sendMessage(chatId, '🏢 *Выберите салон:*', { parse_mode: 'Markdown', ...salonKeyboard });
+}
+
+app.post('/api/booking', async (req, res) => {
+  try {
+    const { service, staff, date, time } = req.body;
+
+    const booking = new Booking({
+      userId: 0,
+      userName: 'Клиент',
+      service,
+      staff,
+      date,
+      time,
+      salon: 'Салон 1'
+    });
+
+    await booking.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Ошибка при создании записи:', error);
+    res.status(500).json({ success: false, error: 'Ошибка сервера' });
+  }
+});
