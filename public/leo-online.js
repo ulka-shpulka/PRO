@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function formatDateTime(datetimeStr) {
+  // Преобразование строки в формат "дд.мм.гггг в чч:мм"
   const dt = new Date(datetimeStr);
   const day = dt.getDate().toString().padStart(2, '0');
   const month = (dt.getMonth() + 1).toString().padStart(2, '0');
@@ -54,7 +55,7 @@ function submitVisit() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
-  const userId = localStorage.getItem("telegramUserId"); // Получаем userId
+  const userId = localStorage.getItem("telegramUserId");
 
   console.log("Submitting Visit with data:", { service, staff, datetime, userId });
 
