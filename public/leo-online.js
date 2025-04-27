@@ -2,7 +2,7 @@ console.log("=== ДИАГНОСТИКА ЗАГРУЗКИ СКРИПТА ===");
 console.log("Скрипт leo-online.js загружен");
 console.log("document.readyState:", document.readyState);
 
-// API URL configuration
+// API URL configuration - make sure this matches your server
 const API_BASE_URL = "https://pro-1-qldl.onrender.com/api";
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
@@ -72,9 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSavedData();
 });
 
-// Save pending booking to the server
+// Save pending booking to the server - simplified to reduce errors
 async function savePendingBooking(bookingData) {
   try {
+    console.log("Отправляем данные на сервер:", bookingData);
+    
     const response = await fetch(`${API_BASE_URL}/pending-booking`, {
       method: 'POST',
       headers: {
@@ -83,22 +85,18 @@ async function savePendingBooking(bookingData) {
       body: JSON.stringify(bookingData)
     });
     
+    // Handle non-OK responses
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log('Ответ сервера на сохранение pending booking:', data);
-    
-    if (!data.success) {
-      alert(`❌ Не удалось сохранить запись: ${data.error || 'Неизвестная ошибка'}`);
+      console.error(`Сервер вернул ошибку ${response.status}`);
       return false;
     }
     
-    return true;
+    const data = await response.json();
+    console.log('Ответ сервера:', data);
+    
+    return data.success === true;
   } catch (error) {
-    console.error('Ошибка при сохранении pending booking:', error);
-    alert("❌ Не удалось сохранить запись. Попробуйте позже.");
+    console.error('Ошибка при сохранении записи:', error);
     return false;
   }
 }
@@ -110,7 +108,7 @@ function loadSavedData() {
     service: localStorage.getItem("selectedService") || null,
     staff: localStorage.getItem("selectedEmployee") || null,
     datetime: localStorage.getItem("selectedDatetime") || null,
-    telegramUsername: localStorage.getItem("telegramUsername") || null
+    userId: localStorage.getItem("userId") || null
   };
 }
 
@@ -142,14 +140,22 @@ function selectDateTime(datetime) {
   goTo('leo-online');
 }
 
+// Generate unique user ID if not present
+function ensureUserId() {
+  let userId = localStorage.getItem("userId");
+  if (!userId) {
+    userId = "user_" + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem("userId", userId);
+  }
+  return userId;
+}
+
 // Prepare booking data for submission
 function prepareBookingData() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
   const datetime = localStorage.getItem("selectedDatetime");
-  
-  // Get telegramUsername if it was saved previously, or prompt for it
-  let telegramUsername = localStorage.getItem("telegramUsername");
+  const userId = ensureUserId();
   
   if (!service || !staff || !datetime) {
     console.error("❌ Нет всех обязательных данных для записи", { service, staff, datetime });
@@ -170,11 +176,106 @@ function prepareBookingData() {
       staff, 
       date, 
       time, 
-      telegramUsername 
+      userId
     };
   } catch (error) {
     console.error("❌ Ошибка при подготовке данных записи:", error);
     return null;
+  }
+}
+
+// Создаем и показываем модальное окно с просьбой подписаться на бота
+function showTelegramModal() {
+  // Проверяем, существует ли уже модальное окно
+  let modal = document.getElementById("telegram-modal");
+  
+  // Если нет, создаем его
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "telegram-modal";
+    modal.style.position = "fixed";
+    modal.style.left = "0";
+    modal.style.top = "0";
+    modal.style.width = "100%";
+    modal.style.height = "100%";
+    modal.style.backgroundColor = "rgba(0,0,0,0.7)";
+    modal.style.display = "flex";
+    modal.style.justifyContent = "center";
+    modal.style.alignItems = "center";
+    modal.style.zIndex = "1000";
+    
+    const modalContent = document.createElement("div");
+    modalContent.style.backgroundColor = "white";
+    modalContent.style.borderRadius = "10px";
+    modalContent.style.padding = "20px";
+    modalContent.style.maxWidth = "500px";
+    modalContent.style.width = "90%";
+    modalContent.style.textAlign = "center";
+    
+    const header = document.createElement("h2");
+    header.textContent = "Подтверждение записи";
+    header.style.marginBottom = "15px";
+    header.style.color = "#444";
+    
+    const message = document.createElement("p");
+    message.textContent = "Для подтверждения записи, пожалуйста, подпишитесь на нашего Telegram бота и следуйте инструкциям.";
+    message.style.marginBottom = "20px";
+    message.style.lineHeight = "1.5";
+    
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "center";
+    buttonContainer.style.gap = "10px";
+    
+    const confirmButton = document.createElement("button");
+    confirmButton.textContent = "Перейти к боту";
+    confirmButton.style.padding = "10px 20px";
+    confirmButton.style.backgroundColor = "#4CAF50";
+    confirmButton.style.color = "white";
+    confirmButton.style.border = "none";
+    confirmButton.style.borderRadius = "5px";
+    confirmButton.style.cursor = "pointer";
+    
+    const cancelButton = document.createElement("button");
+    cancelButton.textContent = "Отмена";
+    cancelButton.style.padding = "10px 20px";
+    cancelButton.style.backgroundColor = "#f44336";
+    cancelButton.style.color = "white";
+    cancelButton.style.border = "none";
+    cancelButton.style.borderRadius = "5px";
+    cancelButton.style.cursor = "pointer";
+    
+    // Добавляем обработчики событий
+    confirmButton.onclick = async () => {
+      // Скрываем модальное окно
+      modal.style.display = "none";
+      
+      // Открываем Telegram бота в новой вкладке
+      window.open(TELEGRAM_BOT_URL, "_blank");
+      
+      // Показываем инструкции после открытия бота
+      setTimeout(() => {
+        alert("После подписки на бота, отправьте ему команду /start, чтобы получить подтверждение вашей записи.");
+      }, 1000);
+    };
+    
+    cancelButton.onclick = () => {
+      modal.style.display = "none";
+    };
+    
+    // Собираем модальное окно
+    buttonContainer.appendChild(confirmButton);
+    buttonContainer.appendChild(cancelButton);
+    
+    modalContent.appendChild(header);
+    modalContent.appendChild(message);
+    modalContent.appendChild(buttonContainer);
+    
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+  } else {
+    // Если модальное окно уже существует, просто показываем его
+    modal.style.display = "flex";
   }
 }
 
@@ -189,44 +290,20 @@ window.submitVisit = async function() {
     return;
   }
   
-  // Ask for Telegram username
-  let telegramUsername = prompt("Введите ваш username в Telegram (без @):");
-  if (!telegramUsername) {
-    alert("Для подтверждения записи необходим ваш username в Telegram.");
-    return;
-  }
-  
-  // Save username to localStorage
-  localStorage.setItem("telegramUsername", telegramUsername);
-  
-  // Prepare booking data with updated username
+  // Prepare booking data
   const bookingData = prepareBookingData();
   if (!bookingData) {
     alert("Не удалось подготовить данные записи. Проверьте все поля.");
     return;
   }
 
-  const confirmed = confirm(
-    "🛎 Чтобы подтвердить запись, подпишитесь на нашего Telegram-бота.\n\nНажмите OK, чтобы перейти."
-  );
-
-  if (!confirmed) {
-    console.log("Пользователь отменил запись");
-    return;
-  }
-
-  // Save pending booking to server
+  // Показываем модальное окно с предложением подписаться на Telegram бота
+  showTelegramModal();
+  
+  // Сохраняем данные записи на сервере
   const success = await savePendingBooking(bookingData);
-
-  if (success) {
-    console.log("✅ Pending booking успешно сохранено. Переход к боту...");
-    
-    // Open Telegram bot in new tab
-    window.open(`${TELEGRAM_BOT_URL}`, '_blank');
-    
-    // Show follow-up instructions
-    setTimeout(() => {
-      alert("После подписки на бота, напишите ему команду /start чтобы получить подтверждение записи.");
-    }, 500);
+  
+  if (!success) {
+    alert("❌ Не удалось сохранить запись. Попробуйте позже или свяжитесь с администратором.");
   }
 };
