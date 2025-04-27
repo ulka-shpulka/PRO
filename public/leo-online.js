@@ -124,6 +124,15 @@ function selectStaff(staffName) {
 
 function selectDateTime(datetime) {
   console.log("Выбраны дата и время:", datetime);
+
+  // Проверяем, что дата и время в правильном формате
+  const dateObj = new Date(datetime);
+  if (isNaN(dateObj.getTime())) {
+    console.error("❌ Неверный формат даты:", datetime);
+    alert("Ошибка: Неверный формат даты.");
+    return;
+  }
+
   localStorage.setItem("selectedDatetime", datetime);
   goTo('leo-online');
 }
@@ -140,6 +149,12 @@ function prepareBookingData() {
   }
 
   const [date, time] = datetime.split('T');
+  
+  // Дополнительная проверка на формат даты и времени
+  if (!date || !time) {
+    console.error("❌ Неверный формат даты и времени:", datetime);
+    return null;
+  }
 
   return { service, staff, date, time, userId };
 }
@@ -148,6 +163,11 @@ function formatDateTime(isoString) {
   if (!isoString) return "";
 
   const date = new Date(isoString);
+  if (isNaN(date.getTime())) {
+    console.error("❌ Неверный формат ISO строки:", isoString);
+    return "Неверный формат даты";
+  }
+
   const options = {
     day: '2-digit',
     month: '2-digit',
