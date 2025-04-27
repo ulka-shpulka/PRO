@@ -49,6 +49,20 @@ function formatDateTime(isoString) {
   return date.toLocaleString('ru-RU', options);
 }
 
+// Очистка данных при загрузке страницы
+function clearStoredBookingData() {
+  // Очищаем только данные о записи, но сохраняем userId
+  const userId = localStorage.getItem("userId");
+  localStorage.clear();
+  
+  // Восстанавливаем userId, если он был
+  if (userId) {
+    localStorage.setItem("userId", userId);
+  }
+  
+  console.log("🧹 Данные о записи очищены");
+}
+
 // Render saved data from localStorage to page
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
@@ -69,6 +83,12 @@ function renderSavedData() {
 // Load DOM event listeners
 document.addEventListener('DOMContentLoaded', () => {
   console.log("📦 Страница полностью загружена");
+  
+  // Очищаем данные бронирования при загрузке главной страницы
+  if (window.location.pathname === "/" || window.location.pathname.includes("index") || window.location.pathname.includes("leo-online")) {
+    clearStoredBookingData();
+  }
+  
   renderSavedData();
 });
 
@@ -176,7 +196,8 @@ function prepareBookingData() {
       staff, 
       date, 
       time, 
-      userId
+      userId,
+      timestamp: new Date().toISOString() // Добавляем метку времени для сортировки
     };
   } catch (error) {
     console.error("❌ Ошибка при подготовке данных записи:", error);
@@ -218,7 +239,7 @@ function showTelegramModal() {
     header.style.color = "#444";
     
     const message = document.createElement("p");
-    message.textContent = "Для подтверждения записи, пожалуйста, подпишитесь на нашего Telegram бота и следуйте инструкциям.";
+    message.innerHTML = "Для подтверждения записи, пожалуйста, подпишитесь на нашего Telegram бота.<br><br><b>После подписки на бота, отправьте ему команду /start, чтобы получить подтверждение вашей записи.</b>";
     message.style.marginBottom = "20px";
     message.style.lineHeight = "1.5";
     
@@ -252,11 +273,6 @@ function showTelegramModal() {
       
       // Открываем Telegram бота в новой вкладке
       window.open(TELEGRAM_BOT_URL, "_blank");
-      
-      // Показываем инструкции после открытия бота
-      setTimeout(() => {
-        alert("После подписки на бота, отправьте ему команду /start, чтобы получить подтверждение вашей записи.");
-      }, 1000);
     };
     
     cancelButton.onclick = () => {
@@ -297,13 +313,20 @@ window.submitVisit = async function() {
     return;
   }
 
-  // Показываем модальное окно с предложением подписаться на Telegram бота
-  showTelegramModal();
-  
   // Сохраняем данные записи на сервере
   const success = await savePendingBooking(bookingData);
   
-  if (!success) {
+  if (success) {
+    // Показываем модальное окно с предложением подписаться на Telegram бота
+    showTelegramModal();
+  } else {
     alert("❌ Не удалось сохранить запись. Попробуйте позже или свяжитесь с администратором.");
   }
 };
+
+// Добавляем обработчик события для очистки данных при закрытии/обновлении страницы
+window.addEventListener('beforeunload', function() {
+  if (window.location.pathname === "/" || window.location.pathname.includes("index") || window.location.pathname.includes("leo-online")) {
+    clearStoredBookingData();
+  }
+});
