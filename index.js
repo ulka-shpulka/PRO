@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 });
 
 // Устанавливаем Webhook для Telegram
-bot.setWebHook(`${domain}/bot${token}`)
+bot.setWebHook(`${domain}/botWebhook`)
   .then(() => {
     console.log(`🌐 Webhook установлен по адресу: ${domain}/bot${token}`);
   })
@@ -44,10 +44,11 @@ bot.setWebHook(`${domain}/bot${token}`)
   });
 
 // Обработка Webhook от Telegram
-app.post(`/bot${token}`, (req, res) => {
+app.post(`/botWebhook`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200); // Ответ Telegram, чтобы показать, что запрос принят
 });
+
 
 
 
