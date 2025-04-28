@@ -8,19 +8,19 @@
 </head>
 <body>
   <div class="container">
-    <div class="selection" onclick="goTo('services')">
+    <div class="selection" data-section="services">
       <div class="label">Услуга</div>
       <div class="chosen" id="chosen-service">Не выбрано</div>
       <span class="arrow">➤</span>
     </div>
 
-    <div class="selection" onclick="goTo('staff')">
+    <div class="selection" data-section="staff">
       <div class="label">Сотрудник</div>
       <div class="chosen" id="chosen-staff">Не выбрано</div>
       <span class="arrow">➤</span>
     </div>
 
-    <div class="selection" onclick="goTo('datetime')">
+    <div class="selection" data-section="datetime">
       <div class="label">Дата и время</div>
       <div class="chosen" id="chosen-datetime">
         <p id="chosen-time">Не выбрано</p>
@@ -38,6 +38,29 @@
     
     <a href="leo.html" class="back-link">← Назад</a>
   </div>
+  
   <script src="leo-online.js"></script>
+  <script>
+    // Инициализация обработчиков событий для выбора
+    document.addEventListener('DOMContentLoaded', () => {
+      const selections = document.querySelectorAll('.selection');
+      selections.forEach(selection => {
+        selection.addEventListener('click', () => {
+          const section = selection.getAttribute('data-section');
+          goTo(section);
+        });
+      });
+
+      function goTo(section) {
+        localStorage.setItem("returnUrl", window.location.href);
+        const allowed = ['services', 'staff', 'datetime', 'leo-online'];
+        if (allowed.includes(section)) {
+          window.location.href = `${section}.html`;
+        } else {
+          console.error(`❌ Неизвестный раздел: ${section}`);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
