@@ -158,7 +158,6 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
 });
 
 // Обработка нажатий на кнопки
-// Обработка нажатий на кнопки
 bot.on('callback_query', async (query) => {
   const chatId = query.message.chat.id;
   const telegramId = query.from.id.toString();
@@ -219,35 +218,36 @@ bot.on('callback_query', async (query) => {
     delete pendingBookings[userId];
   }
   // Обработка отмены записи
-else if (query.data.startsWith('cancel_')) {
-  const userId = query.data.split('_')[1];
-  
-  // Проверяем наличие бронирования
-  if (!pendingBookings[userId]) {
-    bot.answerCallbackQuery(query.id, { text: "Запись уже обработана или не существует" });
-    return;
+  else if (query.data.startsWith('cancel_')) {
+    const userId = query.data.split('_')[1];
+    
+    // Первым делом удаляем сообщение с записью
+    bot.deleteMessage(chatId, query.message.message_id)
+      .then(() => {
+        console.log("Сообщение успешно удалено");
+        
+        // Удаляем запись из pendingBookings только после успешного удаления сообщения
+        delete pendingBookings[userId];
+        
+        // Уведомляем пользователя об отмене через callback, но не показываем сообщение в чате
+        bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
+      })
+      .catch(error => {
+        console.error("Ошибка при удалении сообщения:", error);
+        
+        // Если не удается удалить сообщение, редактируем его
+        bot.editMessageText('❌ Запись отменена', {
+          chat_id: chatId,
+          message_id: query.message.message_id
+        }).catch(e => console.error("Ошибка при редактировании сообщения:", e));
+        
+        // Удаляем запись из pendingBookings в любом случае
+        delete pendingBookings[userId];
+        
+        // Уведомляем пользователя через callback
+        bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
+      });
   }
-  
-  // Уведомляем пользователя об отмене через callback
-  bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
-  
-  // Удаляем сообщение с записью
-  bot.deleteMessage(chatId, query.message.message_id)
-    .then(() => {
-      console.log("Сообщение успешно удалено");
-    })
-    .catch(error => {
-      console.error("Ошибка при удалении сообщения:", error);
-      // Если не удается удалить сообщение, редактируем его
-      bot.editMessageText('❌ Запись отменена', {
-        chat_id: chatId,
-        message_id: query.message.message_id
-      }).catch(e => console.error("Ошибка при редактировании сообщения:", e));
-    });
-  
-  // Удаляем запись из pendingBookings после отмены
-  delete pendingBookings[userId];
-}
   // Показ деталей записи
   else if (query.data.startsWith('details_')) {
     const userId = query.data.split('_')[1];
@@ -272,7 +272,6 @@ else if (query.data.startsWith('cancel_')) {
     bot.sendMessage(chatId, text);
   }
 });
-
 // Подача сайта
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
