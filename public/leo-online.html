@@ -22,13 +22,15 @@
 
     <div class="selection" onclick="goTo('datetime')">
       <div class="label">Дата и время</div>
-      <div class="chosen" id="chosen-datetime"><p id="chosen-time">Не выбрано</p></div>
+      <div class="chosen" id="chosen-datetime">
+        <p id="chosen-time">Не выбрано</p>
+      </div>
       <span class="arrow">➤</span>
     </div>
     
     <button id="submitBtn" onclick="submitVisit()">ОФОРМИТЬ ВИЗИТ</button>
     
-    <!-- Добавленный блок с уведомлением о Telegram -->
+    <!-- Блок с уведомлением о Telegram -->
     <div class="telegram-notice">
       <strong><span class="telegram-notice-icon">ℹ️</span>Важно!</strong>
       Чтобы подтвердить свою запись, подпишитесь на нашего телеграм-бота и напишите ему "/start"

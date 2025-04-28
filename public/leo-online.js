@@ -47,7 +47,12 @@ function renderSavedData() {
 
   document.getElementById("chosen-service")?.textContent = service;
   document.getElementById("chosen-staff")?.textContent = staff;
-  document.getElementById("chosen-time")?.textContent = datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
+  
+  // Исправление: правильно обрабатываем элемент chosen-time внутри chosen-datetime
+  const chosenTimeElement = document.getElementById("chosen-time");
+  if (chosenTimeElement) {
+    chosenTimeElement.textContent = datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
+  }
 
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn) {
@@ -197,6 +202,20 @@ function initDatetimePage() {
   if (dateInput) {
     dateInput.min = new Date().toISOString().split('T')[0];
   }
+}
+
+// Функция для проверки необходимости очистки данных
+function shouldClearData() {
+  // Эта функция отсутствовала в оригинальном коде, но вызывалась
+  // Добавляем пустую реализацию, чтобы избежать ошибок
+  return false;
+}
+
+// Функция для установки времени последнего посещения
+function setLastVisit() {
+  // Эта функция отсутствовала в оригинальном коде, но вызывалась
+  // Добавляем пустую реализацию, чтобы избежать ошибок
+  localStorage.setItem("lastVisit", new Date().toISOString());
 }
 
 // Обработчик события DOMContentLoaded
