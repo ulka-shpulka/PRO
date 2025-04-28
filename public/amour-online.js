@@ -16,33 +16,26 @@ function resetSavedData() {
   localStorage.removeItem("selectedDatetime");
 }
 
-// ===== ФУНКЦИЯ ПРОВЕРКИ, ВЫПОЛНЯЛСЯ ЛИ ВНУТРЕННИЙ ПЕРЕХОД =====
-function checkNavigation() {
-  // Получаем и сразу удаляем флаг внутренней навигации
-  const wasInternalNavigation = sessionStorage.getItem("internalNavigation");
-  sessionStorage.removeItem("internalNavigation");
-  
-  // Если это не внутренняя навигация (обновление F5 или новый визит), сбрасываем данные
-  if (!wasInternalNavigation) {
-    resetSavedData();
-  }
-}
-
 // ===== ПОКАЗ ВЫБРАННЫХ ДАННЫХ НА ГЛАВНОЙ СТРАНИЦЕ =====
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
   const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
   const datetime = localStorage.getItem("selectedDatetime") || "Не выбрано";
 
-  document.getElementById("chosen-service").textContent = service;
-  document.getElementById("chosen-staff").textContent = staff;
+  const serviceElement = document.getElementById("chosen-service");
+  if (serviceElement) serviceElement.textContent = service;
+  
+  const staffElement = document.getElementById("chosen-staff");
+  if (staffElement) staffElement.textContent = staff;
 
   const datetimeElement = document.getElementById("chosen-time");
-  if (datetime !== "Не выбрано") {
-    const date = new Date(datetime);
-    datetimeElement.textContent = date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  } else {
-    datetimeElement.textContent = "Не выбрано";
+  if (datetimeElement) {
+    if (datetime !== "Не выбрано") {
+      const date = new Date(datetime);
+      datetimeElement.textContent = date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } else {
+      datetimeElement.textContent = "Не выбрано";
+    }
   }
 
   const submitBtn = document.getElementById("submitBtn");
@@ -230,26 +223,30 @@ function checkTelegramDeepLink() {
   }
 }
 
-// ===== ОБРАБОТЧИКИ СОБЫТИЙ ЗАКРЫТИЯ И ОБНОВЛЕНИЯ СТРАНИЦЫ =====
+// ===== ОБРАБОТЧИКИ СОБЫТИЙ ЗАКРЫТИЯ ВКЛАДКИ/БРАУЗЕРА =====
 
-// При закрытии или обновлении страницы (этот обработчик вызывается перед выгрузкой страницы)
-window.addEventListener('beforeunload', function(event) {
-  // Устанавливаем метку времени для определения, был ли это F5 или закрытие
-  sessionStorage.setItem('pageReloadTimestamp', Date.now());
+// Перед закрытием вкладки или уходом со страницы
+window.addEventListener('pagehide', function(event) {
+  // Если закрывается вкладка или браузер (не просто навигация между страницами)
+  if (!event.persisted) {
+    // Установка флага закрытия вкладки
+    sessionStorage.setItem('tabClosed', 'true');
+  }
 });
 
-// Обработчик события pageshow - вызывается при загрузке страницы, включая возврат из кэша браузера
-window.addEventListener('pageshow', function(event) {
-  // Если страница загружена из кэша (back/forward навигация), мы не сбрасываем данные
-  if (event.persisted) {
-    sessionStorage.setItem("internalNavigation", "true");
+// При загрузке страницы проверяем, был ли ранее закрыт браузер/вкладка
+window.addEventListener('load', function() {
+  // Проверяем флаг закрытия предыдущей сессии
+  if (sessionStorage.getItem('tabClosed') === 'true') {
+    // Сбрасываем данные, так как это новая сессия после закрытия вкладки/браузера
+    resetSavedData();
+    // Удаляем флаг
+    sessionStorage.removeItem('tabClosed');
   }
-  checkNavigation();
 });
 
 // ===== ОБРАБОТКА НАЖАТИЙ ПО ПУНКТАМ "УСЛУГА", "СОТРУДНИК", "ДАТА" =====
 document.addEventListener("DOMContentLoaded", () => {
-  checkNavigation(); // Проверяем тип навигации при загрузке страницы
   renderSavedData();
   checkTelegramDeepLink();
 
