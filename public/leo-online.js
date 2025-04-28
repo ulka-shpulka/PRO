@@ -85,8 +85,8 @@ function showTelegramModal() {
     `;
     modal.innerHTML = `
       <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 400px;">
-        <h2>Подтверждение записи</h2>
-        <p>Подпишитесь на нашего Telegram-бота и отправьте ему команду <b>/start</b> для подтверждения записи.</p>
+        <h2 style="color: black;">Подтверждение записи</h2>
+        <p style="color: black;">Подпишитесь на нашего Telegram-бота и отправьте ему команду <b>/start</b> для подтверждения записи.</p>
         <div style="margin-top: 20px;">
           <button id="go-to-bot" style="padding: 10px 20px; margin-right: 10px;">Перейти к боту</button>
           <button id="close-modal" style="padding: 10px 20px;">Закрыть</button>

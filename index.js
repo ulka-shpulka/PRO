@@ -23,7 +23,6 @@ if (BOT_MODE === 'polling') {
   bot.on('polling_error', (error) => {
     console.log('Ошибка polling:', error.message);
     
-    // Если получили ошибку конфликта, пробуем перезапустить polling через короткое время
     if (error.message.includes('409 Conflict') || error.message.includes('terminated by other getUpdates')) {
       console.log('Обнаружен конфликт polling, перезапуск через 5 секунд...');
       
@@ -31,8 +30,6 @@ if (BOT_MODE === 'polling') {
       bot.stopPolling()
         .then(() => {
           console.log('Polling остановлен');
-          
-          // Перезапускаем polling через 5 секунд
           setTimeout(() => {
             bot.startPolling()
               .then(() => console.log('Polling успешно перезапущен'))
@@ -46,7 +43,6 @@ if (BOT_MODE === 'polling') {
   // Настройка бота в режиме webhook
   bot = new TelegramBot(BOT_TOKEN, { polling: false });
   
-  // Устанавливаем webhook
   const webhookUrl = `${DOMAIN}/bot${BOT_TOKEN}`;
   bot.setWebHook(webhookUrl)
     .then(() => {
@@ -101,7 +97,6 @@ app.post('/api/link-telegram', (req, res) => {
   }
   
   userTelegramMap[telegramId] = userId;
-  
   res.json({ success: true });
 });
 
@@ -129,13 +124,8 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   // Если есть параметр из deep link, связываем пользователя
   if (startParameter) {
     const userId = startParameter;
-    
-    // Связываем telegramId с userId
     userTelegramMap[telegramId] = userId;
-    
-    // В реальном приложении здесь бы сохраняли связь в базу данных
     console.log(`Связан telegramId ${telegramId} с userId ${userId}`);
-    
     bot.sendMessage(chatId, "✅ Ваш аккаунт успешно связан с сайтом!");
   }
   
@@ -143,7 +133,6 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   const userId = userTelegramMap[telegramId];
   
   if (!userId) {
-    // Если пользователь не связан, предлагаем связать
     bot.sendMessage(chatId, 
       "Для подтверждения записи с сайта, пожалуйста, перейдите на сайт и выберите услугу. " +
       "После этого вернитесь в бот и нажмите кнопку ниже:", 
@@ -177,8 +166,6 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   
   // Показываем информацию о записи
   const { service, staff, date, time } = booking;
-  
-  // Форматируем дату для читаемости
   const formattedDate = new Date(date).toLocaleDateString('ru-RU');
   
   const text = `✨ Ваша запись:\n\n🔹 Услуга: ${service}\n🔹 Специалист: ${staff}\n🔹 Дата: ${formattedDate}\n🔹 Время: ${time}`;
@@ -186,7 +173,6 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   bot.sendMessage(chatId, text, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: "✅ Подтвердить запись", callback_data: `confirm_${userId}` }],
         [{ text: "❌ Отменить запись", callback_data: `cancel_${userId}` }]
       ]
     }
@@ -200,7 +186,6 @@ bot.on('callback_query', async (query) => {
   
   // Обработка кнопки "Проверить записи"
   if (query.data === "check_bookings") {
-    // Проверяем, есть ли связь с аккаунтом на сайте
     const userId = userTelegramMap[telegramId];
     
     if (!userId) {
@@ -209,7 +194,6 @@ bot.on('callback_query', async (query) => {
       return;
     }
     
-    // Проверяем наличие бронирования
     const booking = pendingBookings[userId];
     
     if (!booking) {
@@ -218,94 +202,39 @@ bot.on('callback_query', async (query) => {
       return;
     }
     
-    // Показываем информацию о записи
     const { service, staff, date, time } = booking;
     const formattedDate = new Date(date).toLocaleDateString('ru-RU');
     
     const text = `✨ Ваша запись:\n\n🔹 Услуга: ${service}\n🔹 Специалист: ${staff}\n🔹 Дата: ${formattedDate}\n🔹 Время: ${time}`;
     
     bot.answerCallbackQuery(query.id);
+
     bot.sendMessage(chatId, text, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "✅ Подтвердить запись", callback_data: `confirm_${userId}` }],
           [{ text: "❌ Отменить запись", callback_data: `cancel_${userId}` }]
         ]
       }
     });
   }
-  // Обработка подтверждения записи
-  else if (query.data.startsWith('confirm_')) {
-    const userId = query.data.split('_')[1];
-    
-    // Проверяем наличие бронирования
-    if (!pendingBookings[userId]) {
-      bot.answerCallbackQuery(query.id, { text: "Запись уже обработана или не существует" });
-      return;
-    }
-    
-    // Уведомляем пользователя о подтверждении через callback
-    bot.answerCallbackQuery(query.id, { text: "✅ Запись подтверждена!" });
-    
-    // Отправляем отдельное сообщение "Запись подтверждена!"
-    bot.sendMessage(chatId, "✅ Запись подтверждена!");
-    
-    // Удаляем запись из pendingBookings после подтверждения
-    delete pendingBookings[userId];
-  }
+  
   // Обработка отмены записи
-  else if (query.data.startsWith('cancel_')) {
+  if (query.data.startsWith('cancel_')) {
     const userId = query.data.split('_')[1];
     
-    // Первым делом удаляем сообщение с записью
     bot.deleteMessage(chatId, query.message.message_id)
       .then(() => {
-        console.log("Сообщение успешно удалено");
-        
-        // Удаляем запись из pendingBookings только после успешного удаления сообщения
         delete pendingBookings[userId];
-        
-        // Уведомляем пользователя об отмене через callback, но не показываем сообщение в чате
         bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
       })
       .catch(error => {
-        console.error("Ошибка при удалении сообщения:", error);
-        
-        // Если не удается удалить сообщение, редактируем его
         bot.editMessageText('❌ Запись отменена', {
           chat_id: chatId,
           message_id: query.message.message_id
-        }).catch(e => console.error("Ошибка при редактировании сообщения:", e));
-        
-        // Удаляем запись из pendingBookings в любом случае
+        });
         delete pendingBookings[userId];
-        
-        // Уведомляем пользователя через callback
         bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
       });
-  }
-  // Показ деталей записи
-  else if (query.data.startsWith('details_')) {
-    const userId = query.data.split('_')[1];
-    const booking = pendingBookings[userId];
-    
-    if (!booking) {
-      bot.answerCallbackQuery(query.id, { text: "Информация о записи недоступна" });
-      return;
-    }
-    
-    const { service, staff, date, time } = booking;
-    const formattedDate = new Date(date).toLocaleDateString('ru-RU');
-    
-    const text = `📋 Детали вашей записи:\n\n` +
-                 `🔹 Услуга: ${service}\n` +
-                 `🔹 Специалист: ${staff}\n` +
-                 `🔹 Дата: ${formattedDate}\n` +
-                 `🔹 Время: ${time}\n\n` +
-                 `Пожалуйста, приходите за 10 минут до назначенного времени.`;
-    
-    bot.answerCallbackQuery(query.id);
-    bot.sendMessage(chatId, text);
   }
 });
 
