@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'production') {
       interval: 2000
     }
   });
-  // Make sure to delete any existing webhook
+  // Make sure to delete any existing webhook  
   bot.deleteWebHook();
 }
 
@@ -40,6 +40,26 @@ function getLastBookingForUser(chatId) {
   const user = users[chatId];
   if (!user || !user.lastBookingId) return null;
   return pendingBookings[user.lastBookingId];
+}
+
+// Функция для поиска неподтвержденных записей
+function findAvailableBookings() {
+  let availableBookings = [];
+  
+  for (const [id, booking] of Object.entries(pendingBookings)) {
+    if (booking && booking.confirmed === false && booking.cancelled === false) {
+      availableBookings.push({
+        id,
+        booking,
+        timestamp: booking.timestamp ? new Date(booking.timestamp).getTime() : 0
+      });
+    }
+  }
+  
+  // Сортируем по времени создания (от новых к старым)
+  availableBookings.sort((a, b) => b.timestamp - a.timestamp);
+  
+  return availableBookings;
 }
 
 // Команда /start
@@ -61,20 +81,7 @@ bot.onText(/\/start/, (msg) => {
     users[chatId] = { username, lastBookingId: null };
 
     // Ищем неподтвержденные записи
-    let availableBookings = [];
-    
-    for (const [id, booking] of Object.entries(pendingBookings)) {
-      if (booking && booking.confirmed === false && booking.cancelled === false) {
-        availableBookings.push({
-          id,
-          booking,
-          timestamp: booking.timestamp ? new Date(booking.timestamp).getTime() : 0
-        });
-      }
-    }
-    
-    // Сортируем по времени создания (от новых к старым)
-    availableBookings.sort((a, b) => b.timestamp - a.timestamp);
+    const availableBookings = findAvailableBookings();
     
     // Берем самую свежую запись
     const newestBooking = availableBookings.length > 0 ? availableBookings[0] : null;
@@ -170,8 +177,9 @@ bot.on('callback_query', async (query) => {
       // Отправляем сообщение об отмене
       await bot.sendMessage(chatId, "❌ Ваша запись отменена.");
       
-      // Удаляем запись полностью из системы
-      delete pendingBookings[bookingId];
+      // Отменяем запись
+      booking.cancelled = true;
+      booking.confirmed = false;
       
       // Отвечаем на callback query
       bot.answerCallbackQuery(query.id, { text: "Запись отменена!" });
@@ -223,6 +231,11 @@ app.post('/api/pending-booking', (req, res) => {
     console.error('Ошибка при создании записи:', error);
     res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
   }
+});
+
+// Добавим эндпоинт для получения всех записей (для отладки)
+app.get('/api/bookings', (req, res) => {
+  res.json({ pendingBookings });
 });
 
 // Webhook endpoint for production mode
