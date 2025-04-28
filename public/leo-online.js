@@ -6,6 +6,18 @@ console.log("document.readyState:", document.readyState);
 const API_BASE_URL = "https://pro-1-qldl.onrender.com/api";
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
+// Проверка, является ли текущая загрузка результатом перезагрузки страницы
+let isPageReload = false;
+
+// Проверяем, была ли перезагрузка страницы
+if (performance && performance.getEntriesByType) {
+  const navEntries = performance.getEntriesByType("navigation");
+  if (navEntries.length > 0 && navEntries[0].type === "reload") {
+    isPageReload = true;
+    console.log("Обнаружена перезагрузка страницы!");
+  }
+}
+
 // Навигация
 window.goTo = function(section) {
   // Сохраняем текущий URL для возврата после выбора
@@ -36,8 +48,23 @@ function formatDateTime(isoString) {
 // Очистить данные
 function clearStoredBookingData() {
   const userId = localStorage.getItem("userId");
+  
+  // Сохраняем ключи, которые нужно сохранить
+  const keysToPreserve = ["userId"];
+  
+  // Сохраняем значения для ключей, которые мы хотим сохранить
+  const preservedValues = {};
+  keysToPreserve.forEach(key => {
+    preservedValues[key] = localStorage.getItem(key);
+  });
+  
+  // Очищаем хранилище
   localStorage.clear();
-  if (userId) localStorage.setItem("userId", userId);
+  
+  // Восстанавливаем сохраненные ключи
+  for (const [key, value] of Object.entries(preservedValues)) {
+    if (value) localStorage.setItem(key, value);
+  }
 }
 
 // Отобразить выбранные данные
@@ -163,8 +190,8 @@ function showTelegramModal() {
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       ">
         <h2 style="margin-top: 0; color: #333;">Подтверждение записи</h2>
-        <p style="margin: 20px 0; line-height: 1.5;">
-          После подписки на бота отправьте ему команду <b>/start</b>, чтобы получить подтверждение вашей записи.
+        <p style="margin: 20px 0; line-height: 1.5; font-size: 16px;">
+          <strong>Чтобы подтвердить свою запись, подпишитесь на нашего телеграм-бота и напишите ему "/start"</strong>
         </p>
         <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
           <button id="go-to-bot" style="
@@ -310,6 +337,21 @@ function initDatetimePage() {
   }
 }
 
+// Сохраняем информацию о последнем посещении
+function setLastVisit() {
+  localStorage.setItem('lastVisitTime', Date.now());
+}
+
+// Проверяем, прошло ли достаточно времени с последнего посещения
+function shouldClearData() {
+  const lastVisitTime = parseInt(localStorage.getItem('lastVisitTime') || '0');
+  const now = Date.now();
+  
+  // Если браузер был закрыт и открыт снова (прошло более 30 минут)
+  const thirtyMinutesInMs = 30 * 60 * 1000;
+  return (now - lastVisitTime) > thirtyMinutesInMs;
+}
+
 // При загрузке
 document.addEventListener('DOMContentLoaded', () => {
   console.log("DOMContentLoaded событие сработало");
@@ -317,6 +359,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Определяем, на какой странице мы находимся
   const currentPage = window.location.pathname.split('/').pop();
   console.log("Текущая страница:", currentPage);
+  
+  // Очищаем данные при перезагрузке страницы или если прошло много времени с последнего визита
+  const shouldReset = isPageReload || shouldClearData();
+  
+  if (shouldReset && (currentPage.includes('leo-online') || currentPage === 'index.html' || currentPage === '')) {
+    console.log("Сбрасываем данные из-за перезагрузки или времени бездействия");
+    clearStoredBookingData();
+  }
+  
+  // Обновляем время последнего посещения
+  setLastVisit();
   
   // Инициализируем соответствующую страницу
   if (currentPage.includes('services')) {
@@ -327,21 +380,20 @@ document.addEventListener('DOMContentLoaded', () => {
     initDatetimePage();
   } else if (currentPage.includes('leo-online') || currentPage === 'index.html' || currentPage === '') {
     renderSavedData();
-    
-    // Очищаем данные при перезагрузке главной страницы
-    if (performance.getEntriesByType("navigation")[0].type === "reload") {
-      clearStoredBookingData();
-      renderSavedData(); // Обновляем отображение после очистки
-    }
   }
   
   // Добавляем обработчики для элементов навигации на любой странице
   const selectionElements = document.querySelectorAll('.selection');
   selectionElements.forEach(element => {
-    element.addEventListener('click', function() {
-      const section = this.getAttribute('onclick').match(/goTo\('(.+?)'\)/)[1];
-      if (section) goTo(section);
-    });
+    const onclickAttr = element.getAttribute('onclick');
+    if (onclickAttr) {
+      const match = onclickAttr.match(/goTo\('(.+?)'\)/);
+      if (match && match[1]) {
+        element.addEventListener('click', function() {
+          goTo(match[1]);
+        });
+      }
+    }
   });
 });
 

@@ -98,7 +98,7 @@ bot.onText(/\/start/, (msg) => {
       bot.sendMessage(chatId, `🎉 Ваша запись найдена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "✅ Подтвердить", callback_data: `confirm_${bookingId}` }],
+            [{ text: "✅ Подтвердить запись", callback_data: `confirm_${bookingId}` }],
             [{ text: "❌ Отменить", callback_data: `cancel_${bookingId}` }]
           ]
         }
@@ -122,13 +122,14 @@ bot.onText(/\/start/, (msg) => {
     }
   }
 });
+
 // Обработка кнопок
 bot.on('callback_query', async (query) => {
   try {
     const chatId = query.message.chat.id;
     const messageId = query.message.message_id;
-    const [action, userId] = query.data.split('_');
-    const booking = pendingBookings[userId];
+    const [action, bookingId] = query.data.split('_');
+    const booking = pendingBookings[bookingId];
 
     if (!booking) {
       bot.answerCallbackQuery(query.id, { text: "❌ Запись не найдена" });
@@ -157,20 +158,23 @@ bot.on('callback_query', async (query) => {
       booking.cancelled = false;
       
       // Отвечаем на callback query
-      bot.answerCallbackQuery(query.id, { text: "Запись подтверждена" });
+      bot.answerCallbackQuery(query.id, { text: "Запись подтверждена!" });
     } else if (action === 'cancel') {
       // Удаляем сообщение с кнопками
-      await bot.deleteMessage(chatId, messageId);
+      await bot.editMessageText(`❌ Запись отменена\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}`, {
+        chat_id: chatId,
+        message_id: messageId,
+        reply_markup: { inline_keyboard: [] } // Убираем кнопки
+      });
       
       // Отправляем сообщение об отмене
       await bot.sendMessage(chatId, "❌ Ваша запись отменена.");
       
-      // Помечаем запись как отмененную
-      booking.cancelled = true;
-      booking.confirmed = false;
+      // Удаляем запись полностью из системы
+      delete pendingBookings[bookingId];
       
       // Отвечаем на callback query
-      bot.answerCallbackQuery(query.id, { text: "Запись отменена" });
+      bot.answerCallbackQuery(query.id, { text: "Запись отменена!" });
     }
   } catch (error) {
     console.error('Ошибка при обработке кнопки:', error);
