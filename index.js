@@ -6,11 +6,25 @@ const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 const app = express();
 
-// === НАСТРОЙКА БОТА через Webhook (НЕ POLLING!)
-const bot = new TelegramBot(process.env.BOT_TOKEN);
-const DOMAIN = process.env.DOMAIN;
-const WEBHOOK_URL = `${DOMAIN}/bot${process.env.BOT_TOKEN}`;
-bot.setWebHook(WEBHOOK_URL);
+// === НАСТРОЙКА БОТА через POLLING
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+const DOMAIN = process.env.DOMAIN || 'https://pro-1-qldl.onrender.com';
+
+// Сначала удаляем любые существующие webhook
+bot.deleteWebHook()
+  .then(() => {
+    console.log('Webhook удален, бот работает в режиме polling');
+  })
+  .catch(error => {
+    console.error('Ошибка при удалении webhook:', error);
+    // Продолжаем работу, даже если была ошибка
+  });
+
+// Отлавливаем ошибки polling
+bot.on('polling_error', (error) => {
+  console.log('Ошибка polling:', error.message);
+  // Логируем ошибку, но не останавливаем работу
+});
 
 // Хранилище данных
 const userTelegramMap = {}; // Соотношение userId с telegramId
@@ -18,12 +32,6 @@ const pendingBookings = {}; // Хранение бронирований по us
 
 app.use(cors());
 app.use(bodyParser.json());
-
-// Приём запросов от Telegram
-app.post(`/bot${process.env.BOT_TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -73,13 +81,27 @@ app.get('/api/booking-by-telegram/:telegramId', (req, res) => {
   res.json({ success: true, booking: pendingBookings[userId] });
 });
 
-// Обработка команд Telegram
-bot.onText(/\/start/, async (msg) => {
+// Обработка команды /start с параметром из deep link
+bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   const chatId = msg.chat.id;
   const telegramId = msg.from.id.toString();
+  const startParameter = match[1]; // Параметр из deep link (userId)
   
   // Приветственное сообщение
   bot.sendMessage(chatId, "👋 Добро пожаловать в бот для записи на услуги!");
+  
+  // Если есть параметр из deep link, связываем пользователя
+  if (startParameter) {
+    const userId = startParameter;
+    
+    // Связываем telegramId с userId
+    userTelegramMap[telegramId] = userId;
+    
+    // В реальном приложении здесь бы сохраняли связь в базу данных
+    console.log(`Связан telegramId ${telegramId} с userId ${userId}`);
+    
+    bot.sendMessage(chatId, "✅ Ваш аккаунт успешно связан с сайтом!");
+  }
   
   // Проверяем, есть ли связь с аккаунтом на сайте
   const userId = userTelegramMap[telegramId];
@@ -199,7 +221,7 @@ bot.on('callback_query', async (query) => {
       }
     });
     
-    // Можно не удалять запись из pendingBookings сразу, если нужно сохранить детали
+    // Можно не удалять запись из pendingBookings сразу, если нужно сохранить детали для показа
     // delete pendingBookings[userId];
   }
   // Обработка отмены записи
