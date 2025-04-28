@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const TelegramBot = require('node-telegram-bot-api');
+const path = require('path');
 
 const app = express();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
@@ -13,6 +14,10 @@ const pendingBookings = {};
 app.use(cors());
 app.use(bodyParser.json());
 
+// 👉 Подача статических файлов из папки public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API для сохранения бронирования
 app.post('/api/pending-booking', (req, res) => {
   const { service, staff, date, time, userId } = req.body;
   if (!service || !staff || !date || !time || !userId) {
@@ -24,6 +29,7 @@ app.post('/api/pending-booking', (req, res) => {
   res.json({ success: true });
 });
 
+// Логика Telegram-бота
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const userId = `user_${msg.from.id}`;
@@ -65,5 +71,11 @@ bot.on('callback_query', (query) => {
   }
 });
 
+// 👉 ВСЕ остальные маршруты возвращают index.html (SPA fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Сервер запущен на порту ${PORT}`));
