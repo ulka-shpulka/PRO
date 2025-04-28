@@ -3,7 +3,6 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 // ===== ФУНКЦИИ ПЕРЕХОДА ПО СЕКЦИЯМ =====
 window.goTo = function(section) {
-  // Отмечаем, что переход был внутренним
   sessionStorage.setItem("internalNavigation", "true");
   localStorage.setItem("returnUrl", window.location.href);
   window.location.href = `${section}.html`;
@@ -16,6 +15,36 @@ function resetSavedData() {
   localStorage.removeItem("selectedDatetime");
 }
 
+// ===== СОХРАНЕНИЕ ВЫБОРА ПРИ КЛИКЕ ПО ЭЛЕМЕНТАМ =====
+function handleSelectionClicks() {
+  const selectionElements = document.querySelectorAll('.selection');
+  selectionElements.forEach(el => {
+    el.addEventListener('click', () => {
+      const type = el.dataset.type; // Тип выбора: service, staff, datetime
+      if (!type) return;
+
+      const chosenValue = el.querySelector('.chosen').textContent.trim();
+      if (chosenValue && chosenValue !== "Не выбрано") {
+        if (type === 'service') {
+          localStorage.setItem('selectedService', chosenValue);
+        }
+        if (type === 'staff') {
+          localStorage.setItem('selectedEmployee', chosenValue);
+        }
+        if (type === 'datetime') {
+          localStorage.setItem('selectedDatetime', chosenValue);
+        }
+      }
+      
+      const onclickAttr = el.getAttribute('onclick');
+      const match = onclickAttr && onclickAttr.match(/goTo\('(.+?)'\)/);
+      if (match && match[1]) {
+        goTo(match[1]);
+      }
+    });
+  });
+}
+
 // ===== ПОКАЗ ВЫБРАННЫХ ДАННЫХ НА ГЛАВНОЙ СТРАНИЦЕ =====
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
@@ -24,7 +53,7 @@ function renderSavedData() {
 
   const serviceElement = document.getElementById("chosen-service");
   if (serviceElement) serviceElement.textContent = service;
-  
+
   const staffElement = document.getElementById("chosen-staff");
   if (staffElement) staffElement.textContent = staff;
 
@@ -111,16 +140,12 @@ function showTelegramModal() {
 
     document.getElementById("go-to-bot").onclick = () => {
       const userId = localStorage.getItem("userId");
-      // Используем Deep Link для передачи userId
       const deepLink = `${TELEGRAM_BOT_URL}?start=${userId}`;
       window.open(deepLink, "_blank");
-      
-      // Закрываем модальное окно
       modal.style.display = "none";
-      
-      // Показываем уведомление о необходимости завершить процесс в Telegram
       showCompletionNotification();
     };
+
     document.getElementById("close-modal").onclick = () => {
       modal.style.display = "none";
     };
@@ -146,7 +171,6 @@ function showCompletionNotification() {
 
   document.body.appendChild(notification);
 
-  // Автоматически скрываем уведомление через 10 секунд
   setTimeout(() => {
     notification.style.opacity = "0";
     notification.style.transition = "opacity 1s";
@@ -170,186 +194,9 @@ window.submitVisit = async function() {
   }
 };
 
-// ===== ПРОВЕРКА TELEGRAM DEEP LINK =====
-function checkTelegramDeepLink() {
-  // Если пользователь вернулся по deep link из Telegram
-  const urlParams = new URLSearchParams(window.location.search);
-  const telegramId = urlParams.get('telegram_id');
-  
-  if (telegramId) {
-    const userId = localStorage.getItem("userId");
-    
-    // Отправляем запрос для связывания пользователя с Telegram ID
-    fetch(`${API_BASE_URL}/link-telegram`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, telegramId })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Сохраняем Telegram ID локально
-        localStorage.setItem("telegramId", telegramId);
-        
-        // Показываем уведомление об успешной связке
-        const notification = document.createElement("div");
-        notification.style = `
-          position: fixed; bottom: 20px; right: 20px; 
-          background: #4CAF50; color: white; 
-          padding: 15px; border-radius: 5px; 
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-          z-index: 1000;
-        `;
-        notification.innerHTML = `
-          <p style="margin: 0; font-weight: bold;">Аккаунт связан с Telegram</p>
-          <p style="margin: 5px 0 0 0;">Теперь вы можете управлять записями через бот</p>
-        `;
-        document.body.appendChild(notification);
-        
-        // Удаляем уведомление через 5 секунд
-        setTimeout(() => {
-          notification.style.opacity = "0";
-          notification.style.transition = "opacity 1s";
-          setTimeout(() => notification.remove(), 1000);
-        }, 5000);
-        
-        // Очищаем URL от параметров
-        history.replaceState({}, document.title, location.pathname);
-      }
-    })
-    .catch(error => {
-      console.error('Ошибка связывания с Telegram:', error);
-    });
-  }
-}
-
-// ===== ОБРАБОТЧИКИ СОБЫТИЙ ЗАКРЫТИЯ ВКЛАДКИ/БРАУЗЕРА =====
-
-// Перед закрытием вкладки или уходом со страницы
-window.addEventListener('pagehide', function(event) {
-  // Если закрывается вкладка или браузер (не просто навигация между страницами)
-  if (!event.persisted) {
-    // Установка флага закрытия вкладки
-    sessionStorage.setItem('tabClosed', 'true');
-  }
-});
-
-// При загрузке страницы проверяем, был ли ранее закрыт браузер/вкладка
-window.addEventListener('load', function() {
-  // Проверяем флаг закрытия предыдущей сессии
-  if (sessionStorage.getItem('tabClosed') === 'true') {
-    // Сбрасываем данные, так как это новая сессия после закрытия вкладки/браузера
-    resetSavedData();
-    // Удаляем флаг
-    sessionStorage.removeItem('tabClosed');
-  }
-});
-
-// ===== ОБРАБОТКА НАЖАТИЙ ПО ПУНКТАМ "УСЛУГА", "СОТРУДНИК", "ДАТА" =====
+// ===== ОБРАБОТКА НАЧАЛА СТРАНИЦЫ =====
 document.addEventListener("DOMContentLoaded", () => {
   renderSavedData();
-  checkTelegramDeepLink();
-
-  const selectionElements = document.querySelectorAll('.selection');
-  selectionElements.forEach(el => {
-    el.addEventListener('click', () => {
-      const onclickAttr = el.getAttribute('onclick');
-      const match = onclickAttr && onclickAttr.match(/goTo\('(.+?)'\)/);
-      if (match && match[1]) {
-        goTo(match[1]);
-      }
-    });
-  });
+  handleSelectionClicks();
 });
 
-
-// Обработка команды /start с передачей параметров
-bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  const telegramId = msg.from.id.toString();
-  const startParameter = match[1]; // Параметр из deep link (userId)
-  
-  // Приветственное сообщение
-  bot.sendMessage(chatId, "👋 Добро пожаловать в бот для записи на услуги!");
-  
-  // Если есть параметр из deep link, связываем пользователя
-  if (startParameter) {
-    const userId = startParameter;
-    
-    // Связываем telegramId с userId
-    userTelegramMap[telegramId] = userId;
-    
-    // Отправляем запрос для обновления связи на сервере
-    try {
-      const response = await fetch(`${DOMAIN}/api/link-telegram`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, telegramId })
-      });
-      
-      const result = await response.json();
-      
-      if (!result.success) {
-        bot.sendMessage(chatId, "Произошла ошибка при связывании аккаунтов. Пожалуйста, попробуйте снова.");
-        return;
-      }
-    } catch (error) {
-      console.error('Ошибка связывания аккаунтов:', error);
-      bot.sendMessage(chatId, "Произошла ошибка при связывании аккаунтов. Пожалуйста, попробуйте снова.");
-      return;
-    }
-  }
-  
-  // Проверяем, есть ли связь с аккаунтом на сайте
-  const userId = userTelegramMap[telegramId];
-  
-  if (!userId) {
-    // Если пользователь не связан, предлагаем связать
-    bot.sendMessage(chatId, 
-      "Для подтверждения записи с сайта, пожалуйста, перейдите на сайт и выберите услугу. " +
-      "После этого вернитесь в бот и нажмите кнопку ниже:", 
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔄 Проверить записи", callback_data: "check_bookings" }]
-          ]
-        }
-      }
-    );
-    return;
-  }
-  
-  // Если пользователь связан, проверяем наличие бронирования
-  const booking = pendingBookings[userId];
-  
-  if (!booking) {
-    bot.sendMessage(chatId, 
-      "У вас нет активных записей. Пожалуйста, выберите услугу на сайте.", 
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔄 Проверить записи", callback_data: "check_bookings" }]
-          ]
-        }
-      }
-    );
-    return;
-  }
-  
-  // Показываем информацию о записи
-  const { service, staff, date, time } = booking;
-  
-  // Форматируем дату для читаемости
-  const formattedDate = new Date(date).toLocaleDateString('ru-RU');
-  
-  const text = `✨ Ваша запись:\n\n🔹 Услуга: ${service}\n🔹 Специалист: ${staff}\n🔹 Дата: ${formattedDate}\n🔹 Время: ${time}`;
-  
-  bot.sendMessage(chatId, text, {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "✅ Подтвердить запись", callback_data: `confirm_${userId}` }],
-        [{ text: "❌ Отменить запись", callback_data: `cancel_${userId}` }]
-      ]
-    }
-  });
-});
