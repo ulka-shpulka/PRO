@@ -1,82 +1,39 @@
 const API_BASE_URL = "https://pro-1-qldl.onrender.com/api";
 const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
-// ===== ФУНКЦИИ ПЕРЕХОДА ПО СЕКЦИЯМ =====
+// Переход на страницу выбора
 window.goTo = function(section) {
-  sessionStorage.setItem("internalNavigation", "true");
   localStorage.setItem("returnUrl", window.location.href);
   window.location.href = `${section}.html`;
 };
 
-// ===== ФУНКЦИЯ СБРОСА ДАННЫХ =====
-function resetSavedData() {
-  localStorage.removeItem("selectedService");
-  localStorage.removeItem("selectedEmployee");
-  localStorage.removeItem("selectedDatetime");
-}
-
-// ===== СОХРАНЕНИЕ ВЫБОРА ПРИ КЛИКЕ ПО ЭЛЕМЕНТАМ =====
-function handleSelectionClicks() {
-  const selectionElements = document.querySelectorAll('.selection');
-  selectionElements.forEach(el => {
-    el.addEventListener('click', () => {
-      const type = el.dataset.type; // Тип выбора: service, staff, datetime
-      if (!type) return;
-
-      const chosenValue = el.querySelector('.chosen').textContent.trim();
-      if (chosenValue && chosenValue !== "Не выбрано") {
-        if (type === 'service') {
-          localStorage.setItem('selectedService', chosenValue);
-        }
-        if (type === 'staff') {
-          localStorage.setItem('selectedEmployee', chosenValue);
-        }
-        if (type === 'datetime') {
-          localStorage.setItem('selectedDatetime', chosenValue);
-        }
-      }
-      
-      const onclickAttr = el.getAttribute('onclick');
-      const match = onclickAttr && onclickAttr.match(/goTo\('(.+?)'\)/);
-      if (match && match[1]) {
-        goTo(match[1]);
-      }
-    });
-  });
-}
-
-// ===== ПОКАЗ ВЫБРАННЫХ ДАННЫХ НА ГЛАВНОЙ СТРАНИЦЕ =====
+// Отображение сохранённых данных
 function renderSavedData() {
   const service = localStorage.getItem("selectedService") || "Не выбрано";
   const staff = localStorage.getItem("selectedEmployee") || "Не выбрано";
   const datetime = localStorage.getItem("selectedDatetime") || "Не выбрано";
 
-  const serviceElement = document.getElementById("chosen-service");
-  if (serviceElement) serviceElement.textContent = service;
-
-  const staffElement = document.getElementById("chosen-staff");
-  if (staffElement) staffElement.textContent = staff;
+  document.getElementById("chosen-service").textContent = service;
+  document.getElementById("chosen-staff").textContent = staff;
 
   const datetimeElement = document.getElementById("chosen-time");
-  if (datetimeElement) {
-    if (datetime !== "Не выбрано") {
-      const date = new Date(datetime);
-      datetimeElement.textContent = date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } else {
-      datetimeElement.textContent = "Не выбрано";
-    }
+  if (datetime !== "Не выбрано") {
+    const date = new Date(datetime);
+    datetimeElement.textContent = date.toLocaleString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  } else {
+    datetimeElement.textContent = "Не выбрано";
   }
 
   const submitBtn = document.getElementById("submitBtn");
-  if (submitBtn) {
-    const disabled = (service === "Не выбрано" || staff === "Не выбрано" || datetime === "Не выбрано");
-    submitBtn.disabled = disabled;
-    submitBtn.style.opacity = disabled ? "0.5" : "1";
-    submitBtn.style.cursor = disabled ? "not-allowed" : "pointer";
-  }
+  const disabled = (service === "Не выбрано" || staff === "Не выбрано" || datetime === "Не выбрано");
+  submitBtn.disabled = disabled;
+  submitBtn.style.opacity = disabled ? "0.5" : "1";
+  submitBtn.style.cursor = disabled ? "not-allowed" : "pointer";
 }
 
-// ===== СОХРАНЕНИЕ ДАННЫХ =====
+// Генерация ID пользователя
 function ensureUserId() {
   let userId = localStorage.getItem("userId");
   if (!userId) {
@@ -86,6 +43,7 @@ function ensureUserId() {
   return userId;
 }
 
+// Подготовка данных для отправки
 function prepareBookingData() {
   const service = localStorage.getItem("selectedService");
   const staff = localStorage.getItem("selectedEmployee");
@@ -101,6 +59,7 @@ function prepareBookingData() {
   return { service, staff, date, time, userId };
 }
 
+// Сохранение заявки
 async function savePendingBooking(bookingData) {
   try {
     const response = await fetch(`${API_BASE_URL}/pending-booking`, {
@@ -116,7 +75,7 @@ async function savePendingBooking(bookingData) {
   }
 }
 
-// ===== ПОКАЗ МОДАЛКИ С TELEGRAM БОТОМ =====
+// Модалка Telegram
 function showTelegramModal() {
   let modal = document.getElementById("telegram-modal");
   if (!modal) {
@@ -143,7 +102,6 @@ function showTelegramModal() {
       const deepLink = `${TELEGRAM_BOT_URL}?start=${userId}`;
       window.open(deepLink, "_blank");
       modal.style.display = "none";
-      showCompletionNotification();
     };
 
     document.getElementById("close-modal").onclick = () => {
@@ -154,31 +112,7 @@ function showTelegramModal() {
   }
 }
 
-// ===== УВЕДОМЛЕНИЕ О ЗАВЕРШЕНИИ ЗАПИСИ В TELEGRAM =====
-function showCompletionNotification() {
-  const notification = document.createElement("div");
-  notification.style = `
-    position: fixed; bottom: 20px; right: 20px; 
-    background: #4CAF50; color: white; 
-    padding: 15px; border-radius: 5px; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    z-index: 1000;
-  `;
-  notification.innerHTML = `
-    <p style="margin: 0; font-weight: bold;">Завершите запись в Telegram</p>
-    <p style="margin: 5px 0 0 0;">Нажмите на кнопку "Подтвердить запись" в боте</p>
-  `;
-
-  document.body.appendChild(notification);
-
-  setTimeout(() => {
-    notification.style.opacity = "0";
-    notification.style.transition = "opacity 1s";
-    setTimeout(() => notification.remove(), 1000);
-  }, 10000);
-}
-
-// ===== ОБРАБОТКА КНОПКИ "ОФОРМИТЬ ВИЗИТ" =====
+// Оформление визита
 window.submitVisit = async function() {
   const bookingData = prepareBookingData();
   if (!bookingData) {
@@ -194,9 +128,4 @@ window.submitVisit = async function() {
   }
 };
 
-// ===== ОБРАБОТКА НАЧАЛА СТРАНИЦЫ =====
-document.addEventListener("DOMContentLoaded", () => {
-  renderSavedData();
-  handleSelectionClicks();
-});
-
+document.addEventListener("DOMContentLoaded", renderSavedData);
