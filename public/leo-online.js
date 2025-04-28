@@ -48,7 +48,6 @@ function renderSavedData() {
   document.getElementById("chosen-service")?.textContent = service;
   document.getElementById("chosen-staff")?.textContent = staff;
   
-  // Исправление: правильно обрабатываем элемент chosen-time внутри chosen-datetime
   const chosenTimeElement = document.getElementById("chosen-time");
   if (chosenTimeElement) {
     chosenTimeElement.textContent = datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
@@ -171,7 +170,6 @@ function submitVisit() {
 
 // Функция для проверки необходимости очистки данных
 function shouldClearData() {
-  // Проверяем, прошло ли больше 24 часов с последнего визита
   const lastVisit = localStorage.getItem("lastVisit");
   if (!lastVisit) return true;
   
@@ -227,87 +225,41 @@ function initDatetimePage() {
   });
 
   const dateInput = document.getElementById('date-picker');
-  if (dateInput) {
-    dateInput.min = new Date().toISOString().split('T')[0];
+  const timeInput = document.getElementById('time-picker');
+  
+  dateInput?.addEventListener('input', () => renderSavedData());
+  timeInput?.addEventListener('input', () => renderSavedData());
+}
+
+// Инициализация главной страницы
+function initMainPage() {
+  renderSavedData();
+  document.getElementById("submitBtn")?.addEventListener("click", submitVisit);
+}
+
+// Инициализация страницы в зависимости от контекста
+function initPage() {
+  const page = window.location.pathname.split('/').pop().split('.').shift();
+  switch (page) {
+    case 'leo-online':
+      initMainPage();
+      break;
+    case 'services':
+      initServicesPage();
+      break;
+    case 'staff':
+      initStaffPage();
+      break;
+    case 'datetime':
+      initDatetimePage();
+      break;
+    default:
+      console.error(`❌ Страница не найдена: ${page}`);
   }
 }
 
-// Добавляем обработчики событий при загрузке страницы
-function addEventListeners() {
-  console.log("Добавление обработчиков событий");
-  
-  // Добавляем обработчики для кнопок выбора
-  const servicesBtn = document.getElementById("services-btn");
-  const staffBtn = document.getElementById("staff-btn");
-  const datetimeBtn = document.getElementById("datetime-btn");
-  const submitBtn = document.getElementById("submitBtn");
-  
-  if (servicesBtn) {
-    console.log("Найдена кнопка услуги, добавляем обработчик");
-    servicesBtn.addEventListener("click", () => goTo("services"));
-  } else {
-    console.log("Не найдена кнопка услуги");
-  }
-  
-  if (staffBtn) {
-    console.log("Найдена кнопка сотрудника, добавляем обработчик");
-    staffBtn.addEventListener("click", () => goTo("staff"));
-  } else {
-    console.log("Не найдена кнопка сотрудника");
-  }
-  
-  if (datetimeBtn) {
-    console.log("Найдена кнопка даты/времени, добавляем обработчик");
-    datetimeBtn.addEventListener("click", () => goTo("datetime"));
-  } else {
-    console.log("Не найдена кнопка даты/времени");
-  }
-  
-  // Добавляем обработчик для кнопки оформления визита
-  if (submitBtn) {
-    console.log("Найдена кнопка оформления визита, добавляем обработчик");
-    submitBtn.addEventListener("click", submitVisit);
-  } else {
-    console.log("Не найдена кнопка оформления визита");
-  }
-}
-
-// Функция для обеспечения добавления обработчиков событий
-function setupEventListeners() {
-  // Если DOM уже загружен, добавляем обработчики сразу
-  if (document.readyState === "complete" || document.readyState === "interactive") {
-    console.log("DOM уже загружен, добавляем обработчики немедленно");
-    addEventListeners();
-  } else {
-    // Иначе добавляем их при загрузке DOM
-    console.log("DOM еще не загружен, ждем DOMContentLoaded");
-    document.addEventListener('DOMContentLoaded', addEventListeners);
-  }
-}
-
-// Вызываем функцию добавления обработчиков
-setupEventListeners();
-
-// Обработчик события DOMContentLoaded
+// Загрузка страницы
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("=== DOM полностью загружен ===");
-  const page = window.location.pathname.split('/').pop();
-  console.log("Страница:", page);
-  
-  if ((isPageReload || shouldClearData()) && (page.includes('leo-online') || page === 'index.html' || page === '')) {
-    console.log("Очистка данных из-за перезагрузки или времени");
-    clearStoredBookingData();
-  }
-
   setLastVisit();
-
-  if (page.includes('services')) initServicesPage();
-  else if (page.includes('staff')) initStaffPage();
-  else if (page.includes('datetime')) initDatetimePage();
-  else if (page.includes('leo-online') || page === 'index.html' || page === '') renderSavedData();
-});
-
-console.log("Текущие данные:");
-["selectedService", "selectedEmployee", "selectedDatetime", "userId"].forEach(key => {
-  console.log(`- ${key}:`, localStorage.getItem(key));
+  initPage();
 });
