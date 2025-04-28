@@ -30,40 +30,40 @@ if (process.env.NODE_ENV === 'production') {
 // Обработчик пользователей и записи
 const users = {};
 const pendingBookings = {};
+const telegramUserIds = {}; // Новый объект для хранения связей между userId и chatId
 
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static('public'));
 
-// Получение последней записи для пользователя
-function getLastBookingForUser(chatId) {
-  const user = users[chatId];
-  if (!user || !user.lastBookingId) return null;
-  return pendingBookings[user.lastBookingId];
-}
-
-// Функция для поиска неподтвержденных записей
-function findAvailableBookings() {
-  let availableBookings = [];
+// Функция для поиска записей пользователя по userId или telegramId
+function findBookingsForUser(userId, chatId) {
+  let userBookings = [];
+  
+  // Проверяем, есть ли связь между chatId и userId
+  const linkedUserId = chatId ? Object.keys(telegramUserIds).find(uid => telegramUserIds[uid] === chatId) : null;
   
   for (const [id, booking] of Object.entries(pendingBookings)) {
-    if (booking && booking.confirmed === false && booking.cancelled === false) {
-      availableBookings.push({
-        id,
-        booking,
-        timestamp: booking.timestamp ? new Date(booking.timestamp).getTime() : 0
-      });
+    // Если запись принадлежит пользователю (проверяем и по прямому userId и по связанному userId)
+    if ((userId && id.includes(userId)) || (linkedUserId && id.includes(linkedUserId)) || (booking.userId && (booking.userId === userId || booking.userId === linkedUserId))) {
+      if (booking && !booking.cancelled) {
+        userBookings.push({
+          id,
+          booking,
+          timestamp: booking.timestamp ? new Date(booking.timestamp).getTime() : 0
+        });
+      }
     }
   }
   
   // Сортируем по времени создания (от новых к старым)
-  availableBookings.sort((a, b) => b.timestamp - a.timestamp);
+  userBookings.sort((a, b) => b.timestamp - a.timestamp);
   
-  return availableBookings;
+  return userBookings;
 }
 
 // Команда /start
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start(?:\s+(.+))?/, (msg, match) => {
   try {
     const chatId = msg.chat.id;
     
@@ -77,16 +77,25 @@ bot.onText(/\/start/, (msg) => {
     const username = msg.from.username || `user_${msg.from.id}`;
     console.log(`Получена команда /start от пользователя ${username}, chatId: ${chatId}`);
     
+    // Проверяем, был ли передан userId как параметр
+    // Например: /start user_123456
+    const userIdParam = match && match[1] ? match[1].trim() : null;
+    
     // Сохраняем информацию о пользователе
     users[chatId] = { username, lastBookingId: null };
-
-    // Ищем неподтвержденные записи
-    const availableBookings = findAvailableBookings();
     
-    // Берем самую свежую запись
-    const newestBooking = availableBookings.length > 0 ? availableBookings[0] : null;
+    // Если передан userId, связываем его с текущим chatId
+    if (userIdParam) {
+      console.log(`Связываем userId ${userIdParam} с chatId ${chatId}`);
+      telegramUserIds[userIdParam] = chatId;
+    }
     
-    if (newestBooking) {
+    // Ищем записи для пользователя
+    const userBookings = findBookingsForUser(userIdParam, chatId);
+    
+    if (userBookings.length > 0) {
+      // Берем самую свежую запись
+      const newestBooking = userBookings[0];
       const booking = newestBooking.booking;
       const bookingId = newestBooking.id;
       
@@ -95,6 +104,17 @@ bot.onText(/\/start/, (msg) => {
       
       // Привязываем chatId к записи
       booking.chatId = chatId;
+      
+      // Если запись уже подтверждена, показываем соответствующее сообщение
+      if (booking.confirmed) {
+        const service = booking.service || 'Не указана';
+        const staff = booking.staff || 'Не указан';
+        const date = booking.date || 'Не указана';
+        const time = booking.time || 'Не указано';
+        
+        bot.sendMessage(chatId, `✅ Ваша запись уже подтверждена:\n\n✨ Услуга: ${service}\n🧑‍💼 Специалист: ${staff}\n📅 Дата: ${date}\n🕒 Время: ${time}\n\nЖдем вас в назначенное время!`);
+        return;
+      }
       
       // Форматируем данные с проверкой на undefined
       const service = booking.service || 'Не указана';
@@ -219,14 +239,15 @@ app.post('/api/pending-booking', (req, res) => {
       service, 
       staff, 
       date, 
-      time, 
+      time,
+      userId, // Добавляем userId в саму запись для удобства поиска
       timestamp: new Date().toISOString(),
       confirmed: false,
       cancelled: false
     };
     
     console.log(`Новая запись создана: ${JSON.stringify(pendingBookings[userId])}`);
-    res.json({ success: true });
+    res.json({ success: true, bookingId: userId });
   } catch (error) {
     console.error('Ошибка при создании записи:', error);
     res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера' });
@@ -235,7 +256,7 @@ app.post('/api/pending-booking', (req, res) => {
 
 // Добавим эндпоинт для получения всех записей (для отладки)
 app.get('/api/bookings', (req, res) => {
-  res.json({ pendingBookings });
+  res.json({ pendingBookings, telegramUserIds });
 });
 
 // Webhook endpoint for production mode

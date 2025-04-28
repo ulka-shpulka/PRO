@@ -161,78 +161,26 @@ button.disabled {
 }
 
 
-.label {
-  font-weight: bold;
-  width: 30%;
-}
-
-.chosen {
-  width: 60%;
-  color: #666;
-  text-align: right;
-}
-
-.arrow {
-  color: #999;
-  font-size: 0.8em;
-}
-
-#submitBtn {
-  width: 100%;
-  padding: 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 20px;
-  text-transform: uppercase;
-}
-
-#submitBtn:hover {
-  background-color: #45a049;
-}
-
-#submitBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.back-link {
-  display: block;
-  text-align: center;
-  margin-top: 20px;
-  color: #666;
-  text-decoration: none;
-}
-
-.back-link:hover {
-  text-decoration: underline;
-}
-
-/* Стиль для уведомления Telegram */
-.telegram-notice {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #e3f2fd;
-  border-left: 4px solid #2196F3;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #0d47a1;
-}
-
-.telegram-notice strong {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.telegram-notice-icon {
-  display: inline-block;
-  margin-right: 8px;
-  color: #2196F3;
-  font-size: 18px;
-}
+    /* Стиль для уведомления Telegram */
+    .telegram-notice {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e3f2fd;
+      border-left: 4px solid #2196F3;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #0d47a1;
+    }
+    
+    .telegram-notice strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .telegram-notice-icon {
+      display: inline-block;
+      margin-right: 8px;
+      color: #2196F3;
+      font-size: 18px;
+    }

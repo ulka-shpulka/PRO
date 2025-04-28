@@ -160,6 +160,12 @@ function prepareBookingData() {
 
 // Модальное окно подтверждения
 function showTelegramModal() {
+  // Получаем userId из локального хранилища
+  const userId = localStorage.getItem("userId") || "";
+  
+  // Формируем URL для Telegram-бота с параметром userId
+  const botUrl = userId ? `${TELEGRAM_BOT_URL}?start=${userId}` : TELEGRAM_BOT_URL;
+  
   // Создаем или получаем модальное окно
   let modal = document.getElementById("telegram-modal");
   
@@ -220,7 +226,7 @@ function showTelegramModal() {
     
     // Добавляем обработчики событий для кнопок
     document.getElementById("go-to-bot").onclick = () => {
-      window.open(TELEGRAM_BOT_URL, "_blank");
+      window.open(botUrl, "_blank");
       modal.style.display = "none";
     };
     
@@ -237,6 +243,15 @@ function showTelegramModal() {
   } else {
     // Если модальное окно уже существует, просто показываем его
     modal.style.display = "flex";
+    
+    // Обновляем URL для кнопки "Перейти к боту"
+    const goToBotBtn = document.getElementById("go-to-bot");
+    if (goToBotBtn) {
+      goToBotBtn.onclick = () => {
+        window.open(botUrl, "_blank");
+        modal.style.display = "none";
+      };
+    }
   }
 }
 
@@ -397,87 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Модальное окно подтверждения
-function showTelegramModal() {
-  // Создаем или получаем модальное окно
-  let modal = document.getElementById("telegram-modal");
-  
-  if (!modal) {
-    // Создаем модальное окно, если оно еще не существует
-    modal = document.createElement("div");
-    modal.id = "telegram-modal";
-    modal.style = `
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%;
-      background: rgba(0,0,0,0.7); 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      z-index: 9999;
-    `;
-    
-    modal.innerHTML = `
-      <div style="
-        background: white; 
-        padding: 30px; 
-        border-radius: 10px; 
-        text-align: center; 
-        max-width: 400px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      ">
-        <h2 style="margin-top: 0; color: #333;">Подтверждение записи</h2>
-        <p style="margin: 20px 0; line-height: 1.5; font-size: 16px;">
-          <strong>Чтобы подтвердить свою запись, подпишитесь на нашего телеграм-бота и напишите ему "/start"</strong>
-        </p>
-        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-          <button id="go-to-bot" style="
-            padding: 12px 25px; 
-            background: #4CAF50; 
-            color: white; 
-            border: none; 
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-          ">Перейти к боту</button>
-          <button id="cancel-modal" style="
-            padding: 12px 25px; 
-            background: #f44336; 
-            color: white; 
-            border: none; 
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-          ">Отмена</button>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Добавляем обработчики событий для кнопок
-    document.getElementById("go-to-bot").onclick = () => {
-      window.open(TELEGRAM_BOT_URL, "_blank");
-      modal.style.display = "none";
-    };
-    
-    document.getElementById("cancel-modal").onclick = () => {
-      modal.style.display = "none";
-    };
-    
-    // Закрытие модального окна при клике вне него
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  } else {
-    // Если модальное окно уже существует, просто показываем его
-    modal.style.display = "flex";
-  }
-}
+
 
 // Для диагностики - выводим сохраненные данные в консоль
 console.log("Сохраненные данные:");
