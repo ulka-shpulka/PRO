@@ -27,7 +27,7 @@ function renderSavedData() {
 
   const datetimeElement = document.getElementById("chosen-time");
   if (datetime !== "Не выбрано") {
-    const date = new Date(datetime);
+    const date = new Date(datetime);  // Преобразуем строку в объект Date
     // Форматируем дату и время в нужный вид
     datetimeElement.textContent = date.toLocaleString('ru-RU', { 
       day: '2-digit', 
@@ -48,7 +48,6 @@ function renderSavedData() {
     submitBtn.style.cursor = disabled ? "not-allowed" : "pointer";
   }
 }
-
 
 // ===== СОХРАНЕНИЕ ДАННЫХ =====
 function ensureUserId() {
@@ -89,6 +88,15 @@ async function savePendingBooking(bookingData) {
     return false;
   }
 }
+
+// ===== СОХРАНЕНИЕ ДАТЫ И ВРЕМЕНИ В LOCALSTORAGE =====
+function saveSelectedDatetime(datetime) {
+  // Преобразуем дату в строку ISO
+  localStorage.setItem("selectedDatetime", datetime.toISOString());
+}
+
+// Пример вызова функции для сохранения:
+saveSelectedDatetime(new Date()); // Например, сохраняем текущую дату и время
 
 // ===== ПОКАЗ МОДАЛКИ С TELEGRAM БОТОМ =====
 function showTelegramModal() {
@@ -228,86 +236,5 @@ document.addEventListener("DOMContentLoaded", () => {
         goTo(match[1]);
       }
     });
-  });
-});
-
-// Обработка команды /start с передачей параметров
-bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  const telegramId = msg.from.id.toString();
-  const startParameter = match[1]; 
-
-  bot.sendMessage(chatId, "👋 Добро пожаловать в бот для записи на услуги!");
-
-  if (startParameter) {
-    const userId = startParameter;
-
-    userTelegramMap[telegramId] = userId;
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/link-telegram`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, telegramId })
-      });
-
-      const result = await response.json();
-      
-      if (!result.success) {
-        bot.sendMessage(chatId, "Произошла ошибка при связывании аккаунтов. Пожалуйста, попробуйте снова.");
-        return;
-      }
-    } catch (error) {
-      console.error('Ошибка связывания аккаунтов:', error);
-      bot.sendMessage(chatId, "Произошла ошибка при связывании аккаунтов. Пожалуйста, попробуйте снова.");
-      return;
-    }
-  }
-
-  const userId = userTelegramMap[telegramId];
-  
-  if (!userId) {
-    bot.sendMessage(chatId, 
-      "Для подтверждения записи с сайта, пожалуйста, перейдите на сайт и выберите услугу. " +
-      "После этого вернитесь в бот и нажмите кнопку ниже:", 
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔄 Проверить записи", callback_data: "check_bookings" }]
-          ]
-        }
-      }
-    );
-    return;
-  }
-
-  const booking = pendingBookings[userId];
-  
-  if (!booking) {
-    bot.sendMessage(chatId, 
-      "У вас нет активных записей. Пожалуйста, выберите услугу на сайте.", 
-      {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "🔄 Проверить записи", callback_data: "check_bookings" }]
-          ]
-        }
-      }
-    );
-    return;
-  }
-
-  const { service, staff, date, time } = booking;
-  const formattedDate = new Date(date).toLocaleDateString('ru-RU');
-  
-  const text = `✨ Ваша запись:\n\n🔹 Услуга: ${service}\n🔹 Специалист: ${staff}\n🔹 Дата: ${formattedDate}\n🔹 Время: ${time}`;
-  
-  bot.sendMessage(chatId, text, {
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "✅ Подтвердить запись", callback_data: `confirm_${userId}` }],
-        [{ text: "❌ Отменить запись", callback_data: `cancel_${userId}` }]
-      ]
-    }
   });
 });
