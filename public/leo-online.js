@@ -7,7 +7,7 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 let isPageReload = performance?.getEntriesByType("navigation")[0]?.type === "reload";
 
 // Переход на другие страницы
-window.goTo = function(section) {
+function goTo(section) {
   localStorage.setItem("returnUrl", window.location.href);
   const allowed = ['services', 'staff', 'datetime', 'leo-online'];
   if (allowed.includes(section)) {
@@ -15,7 +15,7 @@ window.goTo = function(section) {
   } else {
     console.error(`❌ Неизвестный раздел: ${section}`);
   }
-};
+}
 
 // Назад на предыдущую страницу
 function goBack() {
@@ -148,15 +148,43 @@ function showTelegramModal() {
 }
 
 // Отправка данных о визите
-window.submitVisit = async function() {
+function submitVisit() {
   const bookingData = prepareBookingData();
   if (!bookingData) {
     alert("Пожалуйста, выберите услугу, сотрудника и время!");
     return;
   }
-  const success = await savePendingBooking(bookingData);
-  success ? showTelegramModal() : alert("Ошибка сохранения записи. Попробуйте снова.");
-};
+  
+  savePendingBooking(bookingData)
+    .then(success => {
+      if (success) {
+        showTelegramModal();
+      } else {
+        alert("Ошибка сохранения записи. Попробуйте снова.");
+      }
+    })
+    .catch(err => {
+      console.error("Ошибка при отправке данных:", err);
+      alert("Произошла ошибка. Попробуйте снова позже.");
+    });
+}
+
+// Функция для проверки необходимости очистки данных
+function shouldClearData() {
+  // Проверяем, прошло ли больше 24 часов с последнего визита
+  const lastVisit = localStorage.getItem("lastVisit");
+  if (!lastVisit) return true;
+  
+  const lastDate = new Date(lastVisit);
+  const now = new Date();
+  const hoursPassed = (now - lastDate) / (1000 * 60 * 60);
+  return hoursPassed > 24;
+}
+
+// Функция для установки времени последнего посещения
+function setLastVisit() {
+  localStorage.setItem("lastVisit", new Date().toISOString());
+}
 
 // Инициализация страницы выбора услуги
 function initServicesPage() {
@@ -204,18 +232,15 @@ function initDatetimePage() {
   }
 }
 
-// Функция для проверки необходимости очистки данных
-function shouldClearData() {
-  // Эта функция отсутствовала в оригинальном коде, но вызывалась
-  // Добавляем пустую реализацию, чтобы избежать ошибок
-  return false;
-}
-
-// Функция для установки времени последнего посещения
-function setLastVisit() {
-  // Эта функция отсутствовала в оригинальном коде, но вызывалась
-  // Добавляем пустую реализацию, чтобы избежать ошибок
-  localStorage.setItem("lastVisit", new Date().toISOString());
+// Добавляем обработчики событий при загрузке страницы
+function addEventListeners() {
+  // Добавляем обработчики для кнопок выбора
+  document.getElementById("services-btn")?.addEventListener("click", () => goTo("services"));
+  document.getElementById("staff-btn")?.addEventListener("click", () => goTo("staff"));
+  document.getElementById("datetime-btn")?.addEventListener("click", () => goTo("datetime"));
+  
+  // Добавляем обработчик для кнопки оформления визита
+  document.getElementById("submitBtn")?.addEventListener("click", submitVisit);
 }
 
 // Обработчик события DOMContentLoaded
@@ -230,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setLastVisit();
+  addEventListeners();
 
   if (page.includes('services')) initServicesPage();
   else if (page.includes('staff')) initStaffPage();
