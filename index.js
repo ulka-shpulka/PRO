@@ -219,35 +219,35 @@ bot.on('callback_query', async (query) => {
     delete pendingBookings[userId];
   }
   // Обработка отмены записи
-  else if (query.data.startsWith('cancel_')) {
-    const userId = query.data.split('_')[1];
-    
-    // Проверяем наличие бронирования
-    if (!pendingBookings[userId]) {
-      bot.answerCallbackQuery(query.id, { text: "Запись уже обработана или не существует" });
-      return;
-    }
-    
-    // Уведомляем пользователя об отмене через callback
-    bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
-    
-    // Удаляем сообщение с записью
-    bot.deleteMessage(chatId, query.message.message_id)
-      .then(() => {
-        console.log("Сообщение успешно удалено");
-      })
-      .catch(error => {
-        console.error("Ошибка при удалении сообщения:", error);
-        // Если не удается удалить сообщение, редактируем его
-        bot.editMessageText('❌ Запись отменена', {
-          chat_id: chatId,
-          message_id: query.message.message_id
-        }).catch(e => console.error("Ошибка при редактировании сообщения:", e));
-      });
-    
-    // Удаляем запись из pendingBookings после отмены
-    delete pendingBookings[userId];
+else if (query.data.startsWith('cancel_')) {
+  const userId = query.data.split('_')[1];
+  
+  // Проверяем наличие бронирования
+  if (!pendingBookings[userId]) {
+    bot.answerCallbackQuery(query.id, { text: "Запись уже обработана или не существует" });
+    return;
   }
+  
+  // Уведомляем пользователя об отмене через callback
+  bot.answerCallbackQuery(query.id, { text: "❌ Запись отменена" });
+  
+  // Удаляем сообщение с записью
+  bot.deleteMessage(chatId, query.message.message_id)
+    .then(() => {
+      console.log("Сообщение успешно удалено");
+    })
+    .catch(error => {
+      console.error("Ошибка при удалении сообщения:", error);
+      // Если не удается удалить сообщение, редактируем его
+      bot.editMessageText('❌ Запись отменена', {
+        chat_id: chatId,
+        message_id: query.message.message_id
+      }).catch(e => console.error("Ошибка при редактировании сообщения:", e));
+    });
+  
+  // Удаляем запись из pendingBookings после отмены
+  delete pendingBookings[userId];
+}
   // Показ деталей записи
   else if (query.data.startsWith('details_')) {
     const userId = query.data.split('_')[1];
