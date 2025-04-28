@@ -6,6 +6,7 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 let isPageReload = performance?.getEntriesByType("navigation")[0]?.type === "reload";
 
+// Переход на другие страницы
 window.goTo = function(section) {
   localStorage.setItem("returnUrl", window.location.href);
   const allowed = ['services', 'staff', 'datetime', 'leo-online'];
@@ -16,10 +17,12 @@ window.goTo = function(section) {
   }
 };
 
+// Назад на предыдущую страницу
 function goBack() {
   window.location.href = localStorage.getItem('returnUrl') || 'leo-online.html';
 }
 
+// Форматирование даты и времени
 function formatDateTime(isoString) {
   const date = new Date(isoString);
   return isNaN(date) ? "Неверный формат даты" : date.toLocaleString('ru-RU', {
@@ -28,12 +31,14 @@ function formatDateTime(isoString) {
   });
 }
 
+// Очистка данных записи
 function clearStoredBookingData() {
   const userId = localStorage.getItem("userId");
   localStorage.clear();
   if (userId) localStorage.setItem("userId", userId);
 }
 
+// Отображение сохраненных данных
 function renderSavedData() {
   const getOrNone = (key) => localStorage.getItem(key) || "Не выбрано";
   const service = getOrNone("selectedService");
@@ -43,7 +48,7 @@ function renderSavedData() {
   document.getElementById("chosen-service")?.textContent = service;
   document.getElementById("chosen-staff")?.textContent = staff;
   document.getElementById("chosen-time")?.textContent = datetime !== "Не выбрано" ? formatDateTime(datetime) : "Не выбрано";
-    
+
   const submitBtn = document.getElementById("submitBtn");
   if (submitBtn) {
     const disabled = [service, staff, datetime].includes("Не выбрано");
@@ -53,6 +58,7 @@ function renderSavedData() {
   }
 }
 
+// Сохранение данных на сервер
 async function savePendingBooking(bookingData) {
   try {
     console.log("Отправка данных на сервер:", bookingData);
@@ -70,6 +76,7 @@ async function savePendingBooking(bookingData) {
   }
 }
 
+// Обеспечение наличия уникального userId
 function ensureUserId() {
   let userId = localStorage.getItem("userId");
   if (!userId) {
@@ -79,6 +86,7 @@ function ensureUserId() {
   return userId;
 }
 
+// Подготовка данных для записи
 function prepareBookingData() {
   const [service, staff, datetime] = ["selectedService", "selectedEmployee", "selectedDatetime"].map(key => localStorage.getItem(key));
   const userId = ensureUserId();
@@ -99,6 +107,7 @@ function prepareBookingData() {
   return { service, staff, date, time, userId, timestamp: new Date().toISOString() };
 }
 
+// Показ модалки для Telegram
 function showTelegramModal() {
   const userId = localStorage.getItem("userId") || "";
   const botUrl = `${TELEGRAM_BOT_URL}?start=${userId}`;
@@ -133,6 +142,7 @@ function showTelegramModal() {
   }
 }
 
+// Отправка данных о визите
 window.submitVisit = async function() {
   const bookingData = prepareBookingData();
   if (!bookingData) {
@@ -143,6 +153,7 @@ window.submitVisit = async function() {
   success ? showTelegramModal() : alert("Ошибка сохранения записи. Попробуйте снова.");
 };
 
+// Инициализация страницы выбора услуги
 function initServicesPage() {
   document.querySelectorAll('.service-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -155,6 +166,7 @@ function initServicesPage() {
   });
 }
 
+// Инициализация страницы выбора сотрудника
 function initStaffPage() {
   document.querySelectorAll('.staff-item').forEach(item => {
     item.addEventListener('click', () => {
@@ -167,6 +179,7 @@ function initStaffPage() {
   });
 }
 
+// Инициализация страницы выбора даты и времени
 function initDatetimePage() {
   const confirmBtn = document.getElementById('confirm-datetime');
   confirmBtn?.addEventListener('click', () => {
@@ -186,15 +199,7 @@ function initDatetimePage() {
   }
 }
 
-function setLastVisit() {
-  localStorage.setItem('lastVisitTime', Date.now());
-}
-
-function shouldClearData() {
-  const last = parseInt(localStorage.getItem('lastVisitTime') || '0');
-  return (Date.now() - last) > (30 * 60 * 1000);
-}
-
+// Обработчик события DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   console.log("=== DOM полностью загружен ===");
   const page = window.location.pathname.split('/').pop();
