@@ -14,12 +14,28 @@ function renderSavedData() {
   const datetime = localStorage.getItem("selectedDatetime") || "Не выбрано";
 
   document.getElementById("chosen-service").textContent = service;
-  document.getElementById("chosen-staff").textContent = staff;
+
+  // Преобразование данных сотрудника
+  if (staff !== "Не выбрано") {
+    const staffData = JSON.parse(staff); // предполагаем, что данные сотрудника в JSON формате
+    const staffName = staffData.name || "Не указано";
+    const staffExperience = staffData.experience || "Не указан стаж"; // новый параметр для стажа
+    document.getElementById("chosen-staff").textContent = `${staffName} (${staffExperience})`; // выводим имя и стаж
+  } else {
+    document.getElementById("chosen-staff").textContent = staff;
+  }
 
   const datetimeElement = document.getElementById("chosen-time");
   if (datetime !== "Не выбрано") {
     const date = new Date(datetime);
-    datetimeElement.textContent = date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    // Форматируем дату и время в нужный вид
+    datetimeElement.textContent = date.toLocaleString('ru-RU', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   } else {
     datetimeElement.textContent = "Не выбрано";
   }
@@ -32,6 +48,7 @@ function renderSavedData() {
     submitBtn.style.cursor = disabled ? "not-allowed" : "pointer";
   }
 }
+
 
 // ===== СОХРАНЕНИЕ ДАННЫХ =====
 function ensureUserId() {
