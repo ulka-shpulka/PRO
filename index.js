@@ -6,25 +6,62 @@ const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 const app = express();
 
-// === НАСТРОЙКА БОТА через POLLING
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+// Определяем режим работы бота (polling или webhook)
+const BOT_MODE = process.env.BOT_MODE || 'polling';
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const DOMAIN = process.env.DOMAIN || 'https://pro-1-qldl.onrender.com';
 
-// Сначала удаляем любые существующие webhook
-bot.deleteWebHook()
-  .then(() => {
-    console.log('Webhook удален, бот работает в режиме polling');
-  })
-  .catch(error => {
-    console.error('Ошибка при удалении webhook:', error);
-    // Продолжаем работу, даже если была ошибка
-  });
+let bot;
 
-// Отлавливаем ошибки polling
-bot.on('polling_error', (error) => {
-  console.log('Ошибка polling:', error.message);
-  // Логируем ошибку, но не останавливаем работу
-});
+// Инициализация бота в зависимости от выбранного режима
+if (BOT_MODE === 'polling') {
+  // Настройка бота в режиме polling
+  bot = new TelegramBot(BOT_TOKEN, { polling: true });
+  console.log('Бот запущен в режиме polling');
+  
+  // Отлавливаем ошибки polling
+  bot.on('polling_error', (error) => {
+    console.log('Ошибка polling:', error.message);
+    
+    // Если получили ошибку конфликта, пробуем перезапустить polling через короткое время
+    if (error.message.includes('409 Conflict') || error.message.includes('terminated by other getUpdates')) {
+      console.log('Обнаружен конфликт polling, перезапуск через 5 секунд...');
+      
+      // Останавливаем текущий polling
+      bot.stopPolling()
+        .then(() => {
+          console.log('Polling остановлен');
+          
+          // Перезапускаем polling через 5 секунд
+          setTimeout(() => {
+            bot.startPolling()
+              .then(() => console.log('Polling успешно перезапущен'))
+              .catch(e => console.error('Ошибка при перезапуске polling:', e));
+          }, 5000);
+        })
+        .catch(e => console.error('Ошибка при остановке polling:', e));
+    }
+  });
+} else {
+  // Настройка бота в режиме webhook
+  bot = new TelegramBot(BOT_TOKEN, { polling: false });
+  
+  // Устанавливаем webhook
+  const webhookUrl = `${DOMAIN}/bot${BOT_TOKEN}`;
+  bot.setWebHook(webhookUrl)
+    .then(() => {
+      console.log(`Webhook установлен на ${webhookUrl}`);
+    })
+    .catch(error => {
+      console.error('Ошибка при установке webhook:', error);
+    });
+  
+  // Обрабатываем входящие обновления через webhook
+  app.post(`/bot${BOT_TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
+}
 
 // Хранилище данных
 const userTelegramMap = {}; // Соотношение userId с telegramId
@@ -32,7 +69,6 @@ const pendingBookings = {}; // Хранение бронирований по us
 
 app.use(cors());
 app.use(bodyParser.json());
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API для бронирования
@@ -272,6 +308,7 @@ bot.on('callback_query', async (query) => {
     bot.sendMessage(chatId, text);
   }
 });
+
 // Подача сайта
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
