@@ -6,8 +6,9 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 let isPageReload = performance?.getEntriesByType("navigation")[0]?.type === "reload";
 
+// Делаем функции доступными глобально, экспортируя их в объект window
 // Переход на другие страницы
-function goTo(section) {
+window.goTo = function(section) {
   localStorage.setItem("returnUrl", window.location.href);
   const allowed = ['services', 'staff', 'datetime', 'leo-online'];
   if (allowed.includes(section)) {
@@ -15,12 +16,12 @@ function goTo(section) {
   } else {
     console.error(`❌ Неизвестный раздел: ${section}`);
   }
-}
+};
 
 // Назад на предыдущую страницу
-function goBack() {
+window.goBack = function() {
   window.location.href = localStorage.getItem('returnUrl') || 'leo-online.html';
-}
+};
 
 // Форматирование даты и времени
 function formatDateTime(isoString) {
@@ -147,7 +148,7 @@ function showTelegramModal() {
 }
 
 // Отправка данных о визите
-function submitVisit() {
+window.submitVisit = function() {
   const bookingData = prepareBookingData();
   if (!bookingData) {
     alert("Пожалуйста, выберите услугу, сотрудника и время!");
@@ -166,7 +167,7 @@ function submitVisit() {
       console.error("Ошибка при отправке данных:", err);
       alert("Произошла ошибка. Попробуйте снова позже.");
     });
-}
+};
 
 // Функция для проверки необходимости очистки данных
 function shouldClearData() {
