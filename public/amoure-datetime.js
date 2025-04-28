@@ -1,4 +1,3 @@
-// --- Выбор времени и даты ---
 const timeContainer = document.getElementById("timeContainer");
 const datePicker = document.getElementById("datePicker");
 const continueBtn = document.getElementById("continueBtn");
@@ -14,7 +13,7 @@ function generateAvailableTimes() {
     const minutes = current.getMinutes().toString().padStart(2, "0");
     times.push(`${hours}:${minutes}`);
 
-    const step = Math.random() < 0.5 ? 30 : 60; // случайный шаг
+    const step = Math.random() < 0.5 ? 30 : 60; // случайный шаг 30 или 60 мин
     current.setMinutes(current.getMinutes() + step);
   }
 
@@ -23,7 +22,6 @@ function generateAvailableTimes() {
 
 // Список всех доступных времен
 const availableTimes = generateAvailableTimes();
-
 
 // Занятые слоты (рандомно распределил побольше занятых времён на даты)
 const bookedTimes = {
