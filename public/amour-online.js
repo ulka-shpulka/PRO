@@ -3,9 +3,30 @@ const TELEGRAM_BOT_URL = "https://t.me/MLfeBot";
 
 // ===== ФУНКЦИИ ПЕРЕХОДА ПО СЕКЦИЯМ =====
 window.goTo = function(section) {
+  // Отмечаем, что переход был внутренним
+  sessionStorage.setItem("internalNavigation", "true");
   localStorage.setItem("returnUrl", window.location.href);
   window.location.href = `${section}.html`;
 };
+
+// ===== ФУНКЦИЯ СБРОСА ДАННЫХ =====
+function resetSavedData() {
+  localStorage.removeItem("selectedService");
+  localStorage.removeItem("selectedEmployee");
+  localStorage.removeItem("selectedDatetime");
+}
+
+// ===== ФУНКЦИЯ ПРОВЕРКИ, ВЫПОЛНЯЛСЯ ЛИ ВНУТРЕННИЙ ПЕРЕХОД =====
+function checkNavigation() {
+  // Получаем и сразу удаляем флаг внутренней навигации
+  const wasInternalNavigation = sessionStorage.getItem("internalNavigation");
+  sessionStorage.removeItem("internalNavigation");
+  
+  // Если это не внутренняя навигация (обновление F5 или новый визит), сбрасываем данные
+  if (!wasInternalNavigation) {
+    resetSavedData();
+  }
+}
 
 // ===== ПОКАЗ ВЫБРАННЫХ ДАННЫХ НА ГЛАВНОЙ СТРАНИЦЕ =====
 function renderSavedData() {
@@ -209,8 +230,26 @@ function checkTelegramDeepLink() {
   }
 }
 
+// ===== ОБРАБОТЧИКИ СОБЫТИЙ ЗАКРЫТИЯ И ОБНОВЛЕНИЯ СТРАНИЦЫ =====
+
+// При закрытии или обновлении страницы (этот обработчик вызывается перед выгрузкой страницы)
+window.addEventListener('beforeunload', function(event) {
+  // Устанавливаем метку времени для определения, был ли это F5 или закрытие
+  sessionStorage.setItem('pageReloadTimestamp', Date.now());
+});
+
+// Обработчик события pageshow - вызывается при загрузке страницы, включая возврат из кэша браузера
+window.addEventListener('pageshow', function(event) {
+  // Если страница загружена из кэша (back/forward навигация), мы не сбрасываем данные
+  if (event.persisted) {
+    sessionStorage.setItem("internalNavigation", "true");
+  }
+  checkNavigation();
+});
+
 // ===== ОБРАБОТКА НАЖАТИЙ ПО ПУНКТАМ "УСЛУГА", "СОТРУДНИК", "ДАТА" =====
 document.addEventListener("DOMContentLoaded", () => {
+  checkNavigation(); // Проверяем тип навигации при загрузке страницы
   renderSavedData();
   checkTelegramDeepLink();
 
