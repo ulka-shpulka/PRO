@@ -592,61 +592,44 @@ section {
   margin-top: 40px;
 }
 
-
-/* Media Queries */
 @media (max-width: 1000px) {
-  /* Burger Menu Responsive Styles */
   .nav-buttons {
     display: none;
   }
-
   .burger-menu {
     display: flex;
   }
-
   header .logo-phone {
     justify-content: flex-start;
   }
-  
-  /* Adaptive Layout */
-  .category-grid {
+    .category-grid {
     grid-template-columns: 1fr;
     gap: 20px;
-
-   
   }
-  
   .banner {
     width: 100%;
     margin-top: 100px;
     border-radius: 20px;
   }
-  
   .categories {
     padding: 40px 20px;
     margin-top: 90px;
   }
-  
   .h2 {
     font-size: 2rem;
   }
-  
   .p {
     font-size: 1rem;
     margin-bottom: 30px;
   }
-  
-  /* Articles Layout */
   .articles {
     margin-top: 40px;
   }
-  
   .article-list {
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
-  
   .article-card {
     width: 100%;
     margin-bottom: 15px;

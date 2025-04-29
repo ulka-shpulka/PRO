@@ -46,7 +46,7 @@ body::after {
     animation-delay: 4s;
 }
 
-/* ✨ АНИМАЦИЯ ДЫХАНИЯ */
+
 @keyframes float {
     0% {
         transform: scale(1) translate(0, 0);
@@ -63,13 +63,13 @@ body::after {
     z-index: 1;
     animation: fadeIn 1.2s ease-out;
     margin-top: 50px;
-    flex-grow: 1; /* Позволяет контейнеру занимать оставшееся пространство */
+    flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     flex: 1;
-    gap: 20px; /* Расстояние между элементами */
+    gap: 20px;
 }
 
 /* Стиль для названия салона */
@@ -623,49 +623,35 @@ body::after {
 }
 
 @media (max-width: 1000px) {
-  /* Обновленные стили для мобильной версии */
-  
-  /* Контейнер для кнопок с правильными отступами */
   .mobile-buttons-container {
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
       margin-top: 20px;
-      gap: 15px; /* Равномерные отступы между кнопками */
+      gap: 15px;
   }
-  
-  /* Перемещаем кнопку Контакты вверх */
   #contactBtn, .bottom-button {
-      position: static !important; /* Переопределяем возможное абсолютное позиционирование */
+      position: static !important;
       bottom: auto !important;
       margin-top: 0 !important;
       margin-bottom: 0 !important;
   }
-  
-  /* Удаляем большие отступы у всех кнопок */
   .btn {
       margin: 0 !important;
   }
-  
-  /* Фиксируем отступы между секциями */
   .reviews {
-      margin-top: 40px !important; /* Уменьшаем отступ до секции с отзывами */
+      margin-top: 40px !important;
   }
-  
-  /* Если у секции отзывов есть верхняя граница или тень, сделаем её более заметной */
   .reviews {
       border-top: 1px solid rgba(255, 255, 255, 0.1);
       padding-top: 40px;
   }
-  
-  /* Уменьшаем нижний отступ у circle */
   .circle {
       margin-bottom: 15px !important;
   }
 }
 
-/* Дополнительно для кнопки "Контакты" - убираем позиционирование */
 @media (max-width: 1000px) {
   .btn.bottom-button {
       transform: none !important;
